@@ -68,21 +68,25 @@ uint8_t GLL_Off[] = { 0XB5, 0X62, 0X06, 0X01, 0X08, 0X00, 0XF0, 0X01, 0X00, 0X00
 uint8_t GGA_On[] = { 0XB5, 0X62, 0X06, 0X01, 0X08, 0X00, 0XF0, 0X00, 0X00, 0X01, 0X01, 0X00, 0X00, 0X00, 0X01, 0X2C};
 uint8_t ZDA_Off[] = { 0XB5, 0X62, 0X06, 0X01, 0X08, 0X00, 0XF0, 0X08, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X07, 0X5B};
 
-uint8_t POWER_MODE_ECO[] = { 0xB5, 0x62, 0x06, 0x86, 0x08, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x97, 0x5B};
+//uint8_t POWER_MODE_CONFIG[] = { 0xB5, 0x62, 0x06, 0x3B, 0x2C, 0x01, 0x00, 0x3C, 0x00,  }; //  UBX-CFG-PM2 - Extended power management configuration
+
+uint8_t POWER_MODE_ECO[] 			= { 0xB5, 0x62, 0x06, 0x86, 0x08, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x97, 0x5B}; //UBX-CFG-RXM
+uint8_t POWER_MODE_ECO_UCENTER[]	= { 0xB5, 0x62, 0x06, 0x86, 0x08, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x97, 0x6F};
+
  
 
 //Power Save Mode (PSM) allows a reduction in system power consumption by selectively switchingparts of the receiver on and off. It is selected using the message UBX-CFG-RXM and configured using UBX-CFG-PM2. It is recommended to use UBX-CFG-PMS instead if available (only supported inprotocol versions 18+) as it provides a simplified interface; see section Power mode setup fordetails
-//CAM-M8Q-0-10  = >  SPG 3.01  => 18.00
+//CAM-M8Q-0-10  = >  SPG 3.01  => 18.00  //ROM CORE 3.01 (107888)
 uint8_t GNSS_Selection[] = { 0XB5, 0X62, 0X06, 0X3E, 0X3C,
 		0X00, 0X00, 0X00, 0X20, 0X07, 						// config header
 		0X00, 0X08, 0X10, 0X00, 0X01, 0X00, 0X01, 0X01,		// GPS
 		0X01, 0X01, 0X03, 0X00, 0X00, 0X00, 0X01, 0X01, 	// SBAS
 		0X02, 0X04, 0X08, 0X00, 0X00, 0X00, 0X01, 0X01, 	// Galileo
-		0X03, 0X04, 0X08, 0X00, 0X00, 0X00, 0X01, 0X01, 	// BeiDou
-		0X04, 0X04, 0X08, 0X00, 0X00, 0X00, 0X01, 0X01, 	// IMES
-		0X05, 0X04, 0X08, 0X00, 0X00, 0X00, 0X01, 0X01, 	// QZSS
-		0X06, 0X04, 0X08, 0X00, 0X00, 0X00, 0X01, 0X01, 	// GLONASS Off
-		0X00, 0X00};
+		0X03, 0X08, 0X10, 0X00, 0X00, 0X00, 0X01, 0X01, 	// BeiDou
+		0X04, 0X00, 0X08, 0X00, 0X00, 0X00, 0X01, 0X01, 	// IMES
+		0X05, 0X00, 0X03, 0X00, 0X00, 0X00, 0X01, 0X01, 	// QZSS
+		0X06, 0X08, 0X0E, 0X00, 0X00, 0X00, 0X01, 0X01, 	// GLONASS Off
+		0X2C, 0X4D};
 
 
 
@@ -96,36 +100,36 @@ OutGpsRst(1);
 HAL_Delay(1);
 
 HAL_UART_Transmit_IT(&GPS_UART_PORT, start_gps1, sizeof(start_gps1));
-HAL_Delay(30);
+HAL_Delay(100);
 
 HAL_UART_Transmit_IT(&GPS_UART_PORT, start_gps2, sizeof(start_gps2));
+HAL_Delay(100);
+
+HAL_UART_Transmit_IT(&GPS_UART_PORT, RMC_Off, sizeof(RMC_Off));
 HAL_Delay(30);
 
-HAL_UART_Transmit_IT(&GPS_UART_PORT, RMC_Off,sizeof(RMC_Off));
+HAL_UART_Transmit_IT(&GPS_UART_PORT, VTG_Off, sizeof(VTG_Off));
 HAL_Delay(30);
 
-HAL_UART_Transmit_IT(&GPS_UART_PORT, VTG_Off,sizeof(VTG_Off));
+HAL_UART_Transmit_IT(&GPS_UART_PORT, GSA_Off, sizeof(GSA_Off));
 HAL_Delay(30);
 
-HAL_UART_Transmit_IT(&GPS_UART_PORT, GSA_Off,sizeof(GSA_Off));
+HAL_UART_Transmit_IT(&GPS_UART_PORT, GSV_Off, sizeof(GSV_Off));
 HAL_Delay(30);
 
-HAL_UART_Transmit_IT(&GPS_UART_PORT, GSV_Off,sizeof(GSV_Off));
+HAL_UART_Transmit_IT(&GPS_UART_PORT, GLL_Off, sizeof(GLL_Off));
 HAL_Delay(30);
 
-HAL_UART_Transmit_IT(&GPS_UART_PORT, GLL_Off,sizeof(GLL_Off));
+HAL_UART_Transmit_IT(&GPS_UART_PORT, ZDA_Off, sizeof(ZDA_Off));
 HAL_Delay(30);
 
-HAL_UART_Transmit_IT(&GPS_UART_PORT, ZDA_Off,sizeof(ZDA_Off));
-HAL_Delay(30);
+HAL_UART_Transmit_IT(&GPS_UART_PORT, GGA_On, sizeof(GGA_On));
+HAL_Delay(200);
 
-HAL_UART_Transmit_IT(&GPS_UART_PORT, GGA_On,sizeof(GGA_On));
-HAL_Delay(30);
+HAL_UART_Transmit_IT(&GPS_UART_PORT, GNSS_Selection, sizeof(GNSS_Selection));
+HAL_Delay(200);
 
-HAL_UART_Transmit_IT(&GPS_UART_PORT, GNSS_Selection,sizeof(GNSS_Selection));
-HAL_Delay(30);
-
-HAL_UART_Transmit_IT(&GPS_UART_PORT, POWER_MODE_ECO, sizeof(POWER_MODE_ECO));
+HAL_UART_Transmit_IT(&GPS_UART_PORT, POWER_MODE_ECO_UCENTER, sizeof(POWER_MODE_ECO_UCENTER)); // UBX-CFG-RXM
 HAL_Delay(30);
 
 

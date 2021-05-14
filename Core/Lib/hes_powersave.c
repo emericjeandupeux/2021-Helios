@@ -7,8 +7,10 @@ int PowerSave(void) {
 	
 	 if (InOn() == 0)
 	 {
-		 OutDone1(1); //Start Powersave part 1
-		 OutDone2(0); //Start Powersave part 2
+		 // DONE SIGNAL -> turn off power
+		 OutDone1(1); //Start Powersave part 1 // PB4 - DONE
+
+		 OutDone2(0); //Start Powersave part 2 // PB3 - DRV
 		 powerSave = 1;
 		 HAL_Delay(100);
 	}

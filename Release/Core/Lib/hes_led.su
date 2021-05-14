@@ -1,2 +1,2 @@
-hes_led.c:3:6:LedOff	40	static
+hes_led.c:3:6:LedOff	32	static
 hes_led.c:33:6:LedOn	40	static

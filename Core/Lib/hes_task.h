@@ -91,3 +91,5 @@ void Battery_Charger_Management(void);
 void GPS_Management(void);
 
 void Task_USB_Configuration(void);
+
+void TaskReadGaz(uint32_t Tab[], float *gazFloatLevel, float *COFloatLevel, float h2sOffset, float h2sfactor,ADC_HandleTypeDef *hadc1);

@@ -1,6 +1,6 @@
 hes_fct.c:3:6:LedChargeIndic	32	static
 hes_fct.c:52:6:CopyTabChar	32	static
 hes_fct.c:136:6:TaskAlertAcc	24	static
-hes_fct.c:197:15:bootloader	16	static
-hes_fct.c:216:6:default_value	48	dynamic
-hes_fct.c:261:6:Load_configuration_value	24	dynamic
+hes_fct.c:198:15:bootloader	16	static
+hes_fct.c:217:6:default_value	48	dynamic
+hes_fct.c:262:6:Load_configuration_value	24	dynamic

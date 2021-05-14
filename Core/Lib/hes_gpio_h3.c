@@ -12,7 +12,7 @@ void OuChaIsel(int outputValue) {
   }
 }
 
-// function :  set output OutDone1 to 1 (param. : 1) or to 0  (param. : 0)
+// function :  set output OutDone1 to 1 (param. : 1) or to 0  (param. : 0) // PB4 - DONE
 void OutDone1(int outputValue) {
   if (outputValue==1) {
     HAL_GPIO_WritePin(GPIOB,DONE_1_Pin, GPIO_PIN_SET);
@@ -21,7 +21,7 @@ void OutDone1(int outputValue) {
   }
 }
 
-// function :  set output OuDone2 to 1 (param. : 1) or to 0  (param. : 0)
+// function :  set output OuDone2 to 1 (param. : 1) or to 0  (param. : 0)  // PB3 - DRV
 void OutDone2(int outputValue) {
   if (outputValue==1) {
     HAL_GPIO_WritePin(GPIOB,DONE_2_Pin, GPIO_PIN_SET);

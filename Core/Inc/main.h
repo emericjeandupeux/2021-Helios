@@ -64,10 +64,14 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define OLED_RST_Pin GPIO_PIN_13
 #define OLED_RST_GPIO_Port GPIOC
+#define GAZ1_CH5_Pin GPIO_PIN_0
+#define GAZ1_CH5_GPIO_Port GPIOA
 #define TX2_GPS_Pin GPIO_PIN_2
 #define TX2_GPS_GPIO_Port GPIOA
 #define MOTOR_WU_Pin GPIO_PIN_3
 #define MOTOR_WU_GPIO_Port GPIOA
+#define GAZ3_CH9_Pin GPIO_PIN_4
+#define GAZ3_CH9_GPIO_Port GPIOA
 #define GAZ_WU_Pin GPIO_PIN_7
 #define GAZ_WU_GPIO_Port GPIOA
 #define LED_WU_Pin GPIO_PIN_0

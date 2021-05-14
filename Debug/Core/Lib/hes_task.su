@@ -7,7 +7,7 @@ hes_task.c:292:6:TaskReadBat	24	static
 hes_task.c:302:6:TaskExtButton	24	static
 hes_task.c:480:6:TaskFallTest	24	static
 hes_task.c:540:6:TaskAlertAll	40	static
-hes_task.c:756:6:TaskOnScreen	16	static
+hes_task.c:755:6:TaskOnScreen	16	static
 hes_task.c:801:6:TaskGPS	56	static
 hes_task.c:888:6:TaskSendMessage	24	static
 hes_task.c:903:6:TaskSendLoraWan	56	static
@@ -23,4 +23,6 @@ hes_task.c:1618:6:Task_Read_Incoming_Rak	80	static
 hes_task.c:1710:6:Repeater_Link_Management	8	static
 hes_task.c:1791:6:Battery_Charger_Management	16	static
 hes_task.c:1918:6:GPS_Management	8	static
-hes_task.c:1965:6:Task_USB_Configuration	272	dynamic
+hes_task.c:1964:6:Task_USB_Configuration	272	dynamic
+hes_task.c:2069:6:TaskReadGaz	56	static
+hes_task.c:2115:6:Task_Gaz	48	static

@@ -1,8 +1,8 @@
-hes_imu.c:13:9:platform_write	24	static
-hes_imu.c:35:9:platform_read	24	static
-hes_imu.c:71:6:Init_IMU	32	static
+hes_imu.c:13:9:platform_write	40	static
+hes_imu.c:35:9:platform_read	40	static
+hes_imu.c:71:6:Init_IMU	24	static
+hes_imu.c:147:6:Measure_IMU	32	static
 hes_imu.c:218:6:imuMsr2floatG_y_bit_res16bit	16	static
-hes_imu.c:147:6:Measure_IMU	40	static
-hes_imu.c:252:6:imuMsr2floatG_HeliosV1	48	static
-hes_imu.c:279:6:printScreen	8	static
-stdlib.h:227:8:itoa	20	static
+hes_imu.c:252:6:imuMsr2floatG_HeliosV1	56	static
+hes_imu.c:279:6:printScreen	16	static
+stdlib.h:227:8:itoa	40	static

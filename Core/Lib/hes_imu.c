@@ -165,7 +165,7 @@ void Measure_IMU(uint8_t buffer6[])
 	int16_t Accel_Y_RAW = 0;
 	int16_t Accel_Z_RAW = 0;
 
-	I2C1_OK = HAL_I2C_Mem_Read (&hi2c1, MPU6050_ADDR, ACCEL_XOUT_H_REG, 1, buffer6, 6, 1000);
+	I2C1_OK = HAL_I2C_Mem_Read (&hi2c1, MPU6050_ADDR, ACCEL_XOUT_H_REG, 1, buffer6, 6, 10);
 
 
 	Accel_X_RAW = (int16_t)(Rec_Data[0] );//<< 8 | Rec_Data [1]);
@@ -193,7 +193,7 @@ void Measure_IMU(uint8_t buffer6[])
 	}
 	else
 	{
-		HAL_Delay(10);
+		HAL_Delay(1);
 		I2C1_OK = HAL_OK;
 	}
 

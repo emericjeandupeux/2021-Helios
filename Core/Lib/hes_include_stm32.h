@@ -17,19 +17,20 @@
 #define SUEZ 0 // 1 :
 
 
+#define NB_SAMPLES_GAZ 5
 //DEBUG SOUND
-#define debug_sound_vibration
+//#define debug_sound_vibration
 
 
 
 /* ---------- SELECT IMU -----------*/
 
-//#define DWM1001C // accelero helios v2
+#define DWM1001C // accelero helios v2
 
 //#define MPU6050_ADDR 0xD0	// accelero helios v3 temporary fix (blue board on DWM footprint)
 
 
-#define MC3413 0x98  // accelero helios v3 (green board with RAK) on DWM footprint and v4
+//#define MC3413 0x98  // accelero helios v3 (green board with RAK) on DWM footprint and v4
 
 /* ---------- SELECT IMU -----------*/
 
@@ -41,6 +42,7 @@
 
 /* ---------- SELECT DEVICE TYPE -----------*/
 #define TIME_BETWEEN_PING 10
+
 
 
 
@@ -75,7 +77,7 @@
 #define BUZOK 				1
 
 #define WIFI				0
-#define SIGFOXOK 			1
+#define SIGFOXOK 			0
 #define LORAWANOK 			0
 #define LORAP2POK 			0
 #define LORAP2P_RECEIVER 	0
@@ -116,7 +118,7 @@
 #endif
 
 
-#define GPSDURA   	5 //[min]   // EJ: was 30-15
+#define GPSDURA   	1 //[min]   // EJ: was 30-15
 #define GPSSTOP   	1 //[min]
 #define GPSREPEAT 	1  //[Min] // EJ: was 60
 

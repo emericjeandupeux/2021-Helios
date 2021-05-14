@@ -268,7 +268,7 @@ void TaskCharger(int TabGen[])
 		TabGen[LOCK_I2C1] = 0;
 	}
 
-	TabGen[EOC] = bmsEOC;
+	TabGen[EOC]		= bmsEOC;
 	TabGen[CHARGEC] = bmsCharge;
 
 }
@@ -695,8 +695,7 @@ void TaskAlertAll(int TabAlert[], int TabGen[], uint32_t TabAlertAll[],
 			TabGen[SOS_PUSH_LONG] = 0;  // clear push button
 			TabGen[TYPE_ALERT] = NONE_ALERT;
 
-			HAL_UART_Transmit(&huart1, (uint8_t*) "A000B000C0D",
-					sizeof((uint8_t*) "A050B010C1D") - 1, 500); // A periodicité, B fréquence, C on/off
+			HAL_UART_Transmit(&huart1, (uint8_t*) "A000B000C0D",sizeof((uint8_t*) "A050B010C1D") - 1, 500); // A periodicité, B fréquence, C on/off
 
 			TabAlertAll[ALL_TIM_3] = HAL_GetTick();
 
@@ -792,8 +791,9 @@ void TaskOnScreen(int TabGen[], uint32_t *Timer_screen)
 
 	if ((HAL_GetTick() - *Timer_screen) > (SEC_ONOFF_SCREEN * 1000))
 	{
-		//REBOOT_FROM_WATCHDOG = 0;
+
 		ScreenOff();
+		//HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);  // Enter stop mode for test only
 		TabGen[SCREENSTATE] = 0;
 	}
 }
@@ -1828,7 +1828,7 @@ void Battery_Charger_Management(void)
 		}
 	}
 
-#ifndef BATT//debug_sound_vibration
+#ifndef debug_sound_vibration
 	if (Flag[F_BATTERY] == 1)
 	{
 		Flag[F_BATTERY] = 0;
@@ -1931,15 +1931,14 @@ void GPS_Management(void)
 		TabTimer[GPS_FIRST_START] = millis;
 		GpsStart();
 		TabGen[GPS_GOOD] = 0;
-		if (millis - TabTimer[LAST_UPDATE_GPS] > 10 * 60 * 1000)
+		if (millis - TabTimer[LAST_UPDATE_GPS] > 10 * 60 * 1000 || TabTimer[LAST_UPDATE_GPS] == 0)
 			TabGen[GPS_DURATION] = 10;
 	}
 
 	// STEP 2
 	if ((TabGen[GPS_ON] == 1) && (TabGen[GPS_ON_PREVIOUS] == 1)) // IF GPS IS ON ALREADY
 	{
-		if ((millis - TabTimer[GPS_FIRST_START])
-				> (TabGen[GPS_DURATION] * 60 * 1000)) // in minutes
+		if ((millis - TabTimer[GPS_FIRST_START]) > (TabGen[GPS_DURATION] * 60 * 1000)) // in minutes
 		{
 			TabGen[GPS_ON] = 0;
 			TabGen[GPS_ON_PREVIOUS] = 0;
@@ -2066,5 +2065,202 @@ void Task_USB_Configuration(void)
 		}
 	}
 }
+
+void TaskReadGaz(uint32_t Tab[], float *gazFloatLevel, float *COFloatLevel, float h2sOffset, float h2sfactor,ADC_HandleTypeDef *hadc1) {
+
+  uint32_t h2sLevel32;
+  int i_max = 50;
+
+  switch (TaskState(Tab)) {
+  case 1:
+    OutCmdGaz(1);
+    HAL_Delay(1);
+    *gazFloatLevel = 0;
+    for (int i = 0; i < i_max; ++i) {
+      HAL_ADC_Start(hadc1);
+      HAL_ADC_PollForConversion(hadc1, 1);
+      h2sLevel32 = HAL_ADC_GetValue(hadc1);
+      HAL_ADC_Stop(hadc1);
+      *gazFloatLevel = ((float)h2sLevel32) + *gazFloatLevel;
+    }
+    *gazFloatLevel = h2sfactor * (((*gazFloatLevel / i_max) * 3.3 / 4096) / 0.0297);
+    *gazFloatLevel = *gazFloatLevel - h2sOffset;
+
+   *gazFloatLevel = (*gazFloatLevel) * 1.66667 ;  //for B7E9 without blank protection
+   // *h2sFloatLevel = (*h2sFloatLevel) * 1.412 ;  //for 25AE with blank protection
+		*COFloatLevel = 0 ;
+    break;
+  default:
+    break;
+  }
+}
+
+
+
+extern ADC_HandleTypeDef hadc1;
+extern uint8_t BiGaz_ON;
+extern uint8_t count_gaz ;
+extern uint16_t gaz1_level[NB_SAMPLES_GAZ];
+extern uint16_t gaz2_level[NB_SAMPLES_GAZ];
+extern uint32_t gaz1_level_mean ;
+extern uint32_t gaz1_ppm ;
+extern uint32_t gaz2_level_mean ;
+extern uint32_t gaz2_ppm ;
+extern uint8_t gaz_alert_phase ;
+extern uint8_t Calibration_Time_Over ;
+extern uint32_t last_vib ;
+
+uint8_t GAZ_THRESHOLD_ALERT ;
+
+void Task_Gaz()
+{
+	if (BiGaz_ON == 1 && TabGen[ALERT_ON] == 0 && TabGen[SIGFOX_SEND] == 0)
+	{
+		uint32_t time = HAL_GetTick();
+		if (time > 20000)
+			Calibration_Time_Over = 1;
+
+		if (time % 500 == 0)
+		{
+
+			ADC_ChannelConfTypeDef sConfig = {0};
+
+			// CHANNEL 5 ALONE OK, CO VOUT1, RIGHT SENSOR, ADC_G1
+			sConfig.Channel = ADC_CHANNEL_5;
+			sConfig.Rank = 1;
+			sConfig.SamplingTime = ADC_SAMPLETIME_247CYCLES_5;
+			sConfig.SingleDiff = ADC_SINGLE_ENDED;
+			sConfig.OffsetNumber = ADC_OFFSET_NONE;
+			sConfig.Offset = 0;
+
+			if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+			{
+				Error_Handler();
+			}
+
+			if (HAL_ADC_Start(&hadc1) != HAL_OK)
+			{
+				Error_Handler();
+			}
+
+			if (HAL_ADC_PollForConversion(&hadc1, 100) != HAL_OK)
+			{
+				Error_Handler();
+			}
+
+			uint16_t gaz_12bit = 0;
+			gaz_12bit = HAL_ADC_GetValue(&hadc1);
+
+			HAL_ADC_Stop(&hadc1);
+
+			gaz1_level[count_gaz] = gaz_12bit ;//((double)gaz_12bit * 3.3)/4096;
+
+			gaz1_level_mean = 0;
+			for (uint8_t i = 0; i < NB_SAMPLES_GAZ; i++)
+				gaz1_level_mean +=  (uint32_t)gaz1_level[i];
+
+			gaz1_level_mean = (uint32_t) ((double)gaz1_level_mean / NB_SAMPLES_GAZ) ;
+			gaz1_ppm = (uint32_t)((double)gaz1_level_mean * 3.3);
+			//gaz1_level_mean = ((double) gaz1_level_mean * 3.3)/4095;
+
+
+
+			// CHANNEL 9 ALONE OK, H2S VOUT2, LEFT SENSOR, ADC_G3
+			sConfig.Channel = ADC_CHANNEL_9;
+			sConfig.Rank = 1;
+			sConfig.SamplingTime = ADC_SAMPLETIME_247CYCLES_5;
+			sConfig.SingleDiff = ADC_SINGLE_ENDED;
+			sConfig.OffsetNumber = ADC_OFFSET_NONE;
+			sConfig.Offset = 0;
+
+			if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+			{
+				Error_Handler();
+			}
+
+			if (HAL_ADC_Start(&hadc1) != HAL_OK)
+			{
+				Error_Handler();
+			}
+
+			if (HAL_ADC_PollForConversion(&hadc1, 100) != HAL_OK)
+			{
+				Error_Handler();
+			}
+
+			gaz_12bit = 0;
+			gaz_12bit = HAL_ADC_GetValue(&hadc1);
+
+			HAL_ADC_Stop(&hadc1);
+
+			gaz2_level[count_gaz] = gaz_12bit ;//((double)gaz_12bit * 3.3)/4096;
+
+			gaz2_level_mean = 0;
+			for (uint8_t i = 0; i < NB_SAMPLES_GAZ; i++)
+				gaz2_level_mean +=  (uint32_t) gaz2_level[i];
+
+			gaz2_level_mean = (uint32_t) ((double)gaz2_level_mean / NB_SAMPLES_GAZ) ;
+			gaz2_ppm = (uint32_t)((double)(25 * gaz2_level_mean)/1600.0);
+			//gaz2_level_mean = ((double) gaz2_level_mean * 3.3)/4095;
+			//gaz2_level = gaz_12bit; //((double)gaz_12bit * 3.3)/4096;
+
+			if (count_gaz < NB_SAMPLES_GAZ)
+				count_gaz++;
+			else
+				count_gaz = 0;
+
+		}
+
+
+		uint8_t VLEP_CO = 100;
+		uint8_t VLEP_H2S = 10;
+
+		if (gaz1_ppm > VLEP_CO || gaz2_ppm > VLEP_H2S && Calibration_Time_Over == 1)
+		{
+			if (gaz1_ppm > VLEP_CO )
+				GAZ_THRESHOLD_ALERT = 1;
+			else if (gaz2_ppm > VLEP_H2S)
+				GAZ_THRESHOLD_ALERT = 2;
+			else
+				GAZ_THRESHOLD_ALERT = 0;
+
+			if (time - last_vib > 1000 && gaz_alert_phase == 0)
+			{
+				gaz_alert_phase = 1;
+				LedOn(250, 250, 250, TabGen);
+
+
+				OutBuzOn();
+				PowerVib(80);
+				OutBuzOff();
+
+				//LedOn(0, 0, 0, TabGen);
+				last_vib = HAL_GetTick();
+			}
+			else if (time - last_vib > 100 && gaz_alert_phase == 1)
+			{
+				gaz_alert_phase = 2;
+
+			}
+			else if (time - last_vib > 150 && gaz_alert_phase == 2)
+			{
+				gaz_alert_phase = 0;
+
+				OutBuzOn();
+				PowerVib(80);
+				OutBuzOff();
+
+				LedOn(0, 0, 0, TabGen);
+			}
+
+
+
+		}
+		else
+			GAZ_THRESHOLD_ALERT = 0;
+	}
+}
+
+
 
 

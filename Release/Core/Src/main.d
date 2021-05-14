@@ -17,6 +17,9 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_gpio_ex.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_dma.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_cortex.h \
+ ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_adc.h \
+ ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_ll_adc.h \
+ ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_adc_ex.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_exti.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_flash.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_flash_ex.h \
@@ -34,16 +37,11 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h \
  ../Core/Inc/../Lib/u8g2/u8g2.h ../Core/Inc/../Lib/u8g2/u8x8.h \
- ../Core/Inc/dma.h ../Core/Inc/main.h ../Core/Inc/i2c.h \
+ ../Core/Inc/adc.h ../Core/Inc/main.h ../Core/Inc/dma.h ../Core/Inc/i2c.h \
  ../Core/Inc/iwdg.h ../Core/Inc/tim.h ../Core/Inc/usart.h \
- ../Core/Inc/gpio.h ../Core/Src/../Lib/USB_CDC/usbd_cdc_if.h \
- ../Core/Src/../Lib/USB_CDC/usbd_cdc.h \
- ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
+ ../USB_DEVICE/App/usb_device.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h \
- ../USB_DEVICE/Target/usbd_conf.h \
- ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h \
- ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
- ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
+ ../USB_DEVICE/Target/usbd_conf.h ../Core/Inc/gpio.h \
  ../Core/Src/../Lib/hes_gpio_h3.h ../Core/Src/../Lib/hes_include_stm32.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32L4xx_hal.h \
  ../Core/Src/../Lib/hes_bms.h ../Core/Src/../Lib/hes_charger.h \
@@ -65,13 +63,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Core/Src/../Lib/hes_sigfoxlora.h ../Core/Src/../Lib/dwm_api.h \
  ../Core/Src/../Lib/dwm1001_tlv.h ../Core/Src/../Lib/dwm1001_tlv.h \
  ../Core/Src/../Lib/lis2dh12_reg.h ../Core/Src/../Lib/hes_fct.h \
- ../Core/Src/../Lib/hes_uart_CarteGaz.h ../Core/Src/../Lib/eeprom_emul.h \
- ../Core/Src/../Lib/eeprom_emul_conf.h \
- ../Core/Src/../Lib/eeprom_emul_types.h \
- ../Core/Src/../Lib/flash_interface.h \
- ../Core/Src/../Lib/../Src/stm32l4xx_ll_bus.h \
- ../Core/Src/../Lib/../Src/stm32l4xx_ll_crc.h \
- ../Core/Src/../Lib/eeprom_flash.h
+ ../Core/Src/../Lib/hes_uart_CarteGaz.h ../Core/Src/../Lib/hes_ee.h
 
 ../Core/Inc/main.h:
 
@@ -111,6 +103,12 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_cortex.h:
 
+../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_adc.h:
+
+../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_ll_adc.h:
+
+../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_adc_ex.h:
+
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_exti.h:
 
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_flash.h:
@@ -147,9 +145,11 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 
 ../Core/Inc/../Lib/u8g2/u8x8.h:
 
-../Core/Inc/dma.h:
+../Core/Inc/adc.h:
 
 ../Core/Inc/main.h:
+
+../Core/Inc/dma.h:
 
 ../Core/Inc/i2c.h:
 
@@ -159,23 +159,13 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 
 ../Core/Inc/usart.h:
 
-../Core/Inc/gpio.h:
-
-../Core/Src/../Lib/USB_CDC/usbd_cdc_if.h:
-
-../Core/Src/../Lib/USB_CDC/usbd_cdc.h:
-
-../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h:
+../USB_DEVICE/App/usb_device.h:
 
 ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h:
 
 ../USB_DEVICE/Target/usbd_conf.h:
 
-../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h:
-
-../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h:
-
-../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h:
+../Core/Inc/gpio.h:
 
 ../Core/Src/../Lib/hes_gpio_h3.h:
 
@@ -259,16 +249,4 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 
 ../Core/Src/../Lib/hes_uart_CarteGaz.h:
 
-../Core/Src/../Lib/eeprom_emul.h:
-
-../Core/Src/../Lib/eeprom_emul_conf.h:
-
-../Core/Src/../Lib/eeprom_emul_types.h:
-
-../Core/Src/../Lib/flash_interface.h:
-
-../Core/Src/../Lib/../Src/stm32l4xx_ll_bus.h:
-
-../Core/Src/../Lib/../Src/stm32l4xx_ll_crc.h:
-
-../Core/Src/../Lib/eeprom_flash.h:
+../Core/Src/../Lib/hes_ee.h:
