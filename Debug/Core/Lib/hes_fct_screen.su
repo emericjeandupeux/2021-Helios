@@ -1,0 +1,10 @@
+hes_fct_screen.c:3:6:initScreen	16	static
+hes_fct_screen.c:31:6:ScreenMessExt3s	40	static
+hes_fct_screen.c:51:6:ScreenMessExt2s	40	static
+hes_fct_screen.c:69:6:ScreenMessExt1s	40	static
+hes_fct_screen.c:87:6:ScreenMessExtOnly	40	static
+hes_fct_screen.c:105:6:ScreenMessEmpty	40	static
+hes_fct_screen.c:126:8:AdcCompute	112	static
+hes_fct_screen.c:196:6:ComputeAlerteGaz	16	static
+hes_fct_screen.c:215:6:ComputeAdc	128	static
+hes_fct_screen.c:410:6:ComputeAdcH2S	40	static

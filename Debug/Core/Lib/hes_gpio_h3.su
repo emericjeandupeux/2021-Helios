@@ -1,0 +1,16 @@
+hes_gpio_h3.c:7:6:OuChaIsel	16	static
+hes_gpio_h3.c:16:6:OutDone1	16	static
+hes_gpio_h3.c:25:6:OutDone2	16	static
+hes_gpio_h3.c:34:6:OutDwmRst	16	static
+hes_gpio_h3.c:43:6:OutDwmWu	16	static
+hes_gpio_h3.c:64:6:OutOledWu	16	static
+hes_gpio_h3.c:73:6:OutLoraWu	16	static
+hes_gpio_h3.c:82:6:OutGpsRst	16	static
+hes_gpio_h3.c:91:6:OutLedWu	16	static
+hes_gpio_h3.c:100:6:OutGazWu	16	static
+hes_gpio_h3.c:109:6:OutMotorWu	16	static
+hes_gpio_h3.c:121:6:OutOledRst	16	static
+hes_gpio_h3.c:132:5:InOn	16	static
+hes_gpio_h3.c:142:5:InSOS	16	static
+hes_gpio_h3.c:152:6:OutBuzOn	8	static
+hes_gpio_h3.c:159:6:OutBuzOff	8	static

@@ -1,0 +1,7 @@
+hes_adc_CartreGaz.c:28:7:adc_getTemperature	8	static
+hes_adc_CartreGaz.c:34:7:adc_getNiveauSonore	8	static
+hes_adc_CartreGaz.c:40:7:adc_getDioxigene	0	static
+hes_adc_CartreGaz.c:45:7:adc_getMonoxyde	0	static
+hes_adc_CartreGaz.c:50:7:adc_getSulfure	0	static
+hes_adc_CartreGaz.c:56:7:adc_getExplosif	16	static
+hes_adc_CartreGaz.c:66:6:adc_Init	0	static

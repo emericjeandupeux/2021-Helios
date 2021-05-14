@@ -1,0 +1,13 @@
+hes_screen.c:13:6:ssd1306_Fill	0	static
+hes_screen.c:23:6:ssd1306_WriteCommand	32	static
+hes_screen.c:95:6:ssd1306_UpdateScreen	32	static
+hes_screen.c:28:9:ssd1306_Init	8	static
+hes_screen.c:114:6:ssd1306_DrawPixel	12	static
+hes_screen.c:137:6:ssd1306_WriteChar	64	static
+hes_screen.c:169:6:ssd1306_WriteString	32	static
+hes_screen.c:184:6:ssd1306_SetCursor	0	static
+hes_screen.c:208:6:ssd1306_On	8	static
+hes_screen.c:218:6:ScreenOn	0	static
+hes_screen.c:232:6:ScreenOff	8	static
+hes_screen.c:244:6:ssd1306_Off	8	static
+hes_screen.c:249:6:ssd1306_BatteryLevel	40	static

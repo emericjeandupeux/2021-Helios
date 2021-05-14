@@ -1,0 +1,3 @@
+usb_device.c:61:6:Hes_USB_Config_Mode	8	static
+usb_device.c:81:6:USB_DFU	8	static
+usb_device.c:115:6:MX_USB_DEVICE_Init	8	static

@@ -1,0 +1,5 @@
+flash_interface.c:75:19:FI_WriteDoubleWord	24	static
+flash_interface.c:88:11:FI_PageErase	48	static
+flash_interface.c:119:11:FI_PageErase_IT	40	static
+flash_interface.c:186:11:FI_DeleteCorruptedFlashAddress	24	static
+flash_interface.c:251:11:FI_CheckBankConfig	4	static

@@ -1,0 +1,4 @@
+hes_gps.c:4:6:GpsStop	32	static
+hes_gps.c:41:6:CheckSum	16	static
+hes_gps.c:55:6:GpsStart	248	static
+hes_gps.c:134:5:find_word	0	static
