@@ -1,4 +1,7 @@
-hes_fct.c:4:6:LedChargeIndic	40	static
-hes_fct.c:57:6:CopyTabChar	8	static
-hes_fct.c:145:6:TaskAlertAcc	16	static
-hes_fct.c:206:15:bootloader	8	static
+hes_fct.c:3:6:LedChargeIndic	40	static
+hes_fct.c:52:6:CopyTabChar	8	static
+hes_fct.c:136:6:TaskAlertAcc	0	static
+hes_fct.c:197:15:bootloader	8	static
+hes_fct.c:216:6:default_value	32	dynamic
+hes_fct.c:261:6:Load_configuration_value	16	dynamic
+hes_fct.c:283:6:Load_ID_Sigfox	232	dynamic,bounded

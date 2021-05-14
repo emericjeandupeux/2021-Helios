@@ -1,4 +1,5 @@
 #include "hes_task.h"
+#include "hes_properties.h"
 
 extern uint32_t AskJoinTimeLoraWan;
 
@@ -708,19 +709,19 @@ void TaskAlertAll(int TabAlert[], int TabGen[], uint32_t TabAlertAll[],
 
 		}
 
-		if ((HAL_GetTick() - TabAlertAll[ALL_TIM_1]) > (SIGDURATION * 1000)) // if timer to cancel alert is over
+		if ((HAL_GetTick() - TabAlertAll[ALL_TIM_1]) > (c1.tps_Alarme * 1000)) // if timer to cancel alert is over
 		{
 			TabGen[NS_MALAISE] = 0;
 			TabGen[ALERT_PENDING] = 1;
 
-			if (SIGFOXOK == 1)
+			if (c1.com_sigfox == 1)
 			{
 
 				TabGen[SIGFOX_SEND] = 1;   // send sigfox mess
 			}
-			if (LORAWANOK == 1)
+			if (c1.com_LoRa == 1)
 			{
-				if (SIGFOXOK == 0)
+				if (c1.com_sigfox == 0)
 					TabGen[LORA_SEND] = 1; // send lora mess
 				else
 				{
@@ -730,7 +731,7 @@ void TaskAlertAll(int TabAlert[], int TabGen[], uint32_t TabAlertAll[],
 				//TabGen[SIGFOX_SEND] = 0;
 
 			}
-			if (LORAP2POK == 1)
+			if (c1.loraP2P == 1)
 			{
 				TabGen[LORAP2P_SEND] = 1; // send lora mess
 			}
@@ -805,7 +806,7 @@ void TaskGPS(uint8_t RxI[], int TabGen[], uint32_t TabGpsTimer[],
 	float lati = 0;
 	float longi = 0;
 
-	if (GPSOK == 1) // GPS IS ENABLED
+	if (c1.GPS_Actif == 1) // GPS IS ENABLED
 	{
 		if (TabGen[GPS_ON] == 1)
 		{
@@ -874,7 +875,7 @@ void TaskGPS(uint8_t RxI[], int TabGen[], uint32_t TabGpsTimer[],
 
 					if (TabGen[GPS_GOOD] == 0)
 					{
-						TabGpsTimer[GPS_FIRST_START] = HAL_GetTick();//- (GPSDURA * 60 * 1000) + (GPSSTOP * 60 * 1000) ;  //LAST CHANGE 18h10-07/10
+						TabGpsTimer[GPS_FIRST_START] = HAL_GetTick();//- (c1.tps_GPS_ON * 60 * 1000) + (GPSSTOP * 60 * 1000) ;  //LAST CHANGE 18h10-07/10
 						TabGen[GPS_GOOD] = 1;
 						TabGen[GPS_DURATION] = 1;
 					}
@@ -905,7 +906,7 @@ void TaskSendLoraWan(int TabGen[], float TabFloatValue[],
 {
 	char bufferLoraWan[32];
 
-	if ((LORAWANOK == 1) && (TabGen[LORA_SEND] == 1))
+	if ((c1.com_LoRa == 1) && (TabGen[LORA_SEND] == 1))
 	{
 		TabGen[RE_ON_SCREEN] = 1;
 		TabGen[LORA_SEND] = 0;
@@ -932,7 +933,7 @@ void TaskSendSigfox(int TabGen[], float TabFloatValue[], uint32_t TabTimer[],
 {
 	char bufferSig[40];
 
-	if ((SIGFOXOK == 1) && (TabGen[SIGFOX_SEND] == 1))
+	if ((c1.com_sigfox == 1) && (TabGen[SIGFOX_SEND] == 1))
 	{
 		HAL_IWDG_Refresh(&hiwdg);
 		RebootNemeusLS(TabGen); // Override duty cycle limitation, must wait 9 min before sending another message
@@ -1023,7 +1024,7 @@ void TaskSendLora(int TabGen[], float TabFloatValue[], uint32_t TabGpsTimer[])
 {
 	char bufferLora[32];
 
-	if ((LORAP2POK == 1) && (TabGen[LORA_SEND] == 1) && SUEZ == 0)
+	if ((c1.loraP2P == 1) && (TabGen[LORA_SEND] == 1) && SUEZ == 0)
 	{
 		TabGen[RE_ON_SCREEN] = 1;
 		TabGen[LORA_SEND] = 0;
@@ -1298,7 +1299,7 @@ void TaskSendLoraNoGPS(int TabGen[], float TabFloatValue[],
 {
 	char bufferLora[32];
 
-	if ((LORAP2POK == 1) && (TabGen[LORAP2P_SEND] == 1) && SUEZ == 0)
+	if ((c1.loraP2P == 1) && (TabGen[LORAP2P_SEND] == 1) && SUEZ == 0)
 	{
 		TabGen[RE_ON_SCREEN] = 1;
 		TabGen[LORAP2P_SEND] = 0;
@@ -1599,7 +1600,7 @@ void Task_Read_Nemeus(void)
 				}
 
 			} // NO RSSI, LORA DOWNLINK NOT RECEIVED
-//				else if(SIGFOXOK == 1 && TabGen[ALERT_PENDING] == 1)
+//				else if(c1.com_sigfox == 1 && TabGen[ALERT_PENDING] == 1)
 //				{// MAC COMMAND RECEIVED  ### +MAC: RDEVADDR, no minus, no ack // WORKING
 //
 //					TabGen[SIGFOX_SEND] = 1;
@@ -1952,16 +1953,16 @@ void GPS_Management(void)
 	if ((TabGen[GPS_ON] == 0) && (TabGen[GPS_ON_PREVIOUS] == 0))
 	{
 		// GPS is not on => turn it on
-		if ((millis - TabTimer[GPS_REPEAT_START]) > (GPSREPEAT * 60 * 1000)) // in minutes
+		if ((millis - TabTimer[GPS_REPEAT_START])
+				> (c1.tps_GPS_OFF * 60 * 1000)) // in minutes
 		{
 			TabGen[GPS_ON] = 1;
 		}
 	}
 }
 
-extern uint8_t nb_parametre;
-extern uint8_t received_data[64];
-extern struct config_data c1;
+
+//Gestion de la réception des données de la console transmise par USB
 void Task_USB_Configuration(void)
 {
 	uint8_t len = sizeof(received_data);
@@ -1970,32 +1971,35 @@ void Task_USB_Configuration(void)
 	if (len > 0)
 	{
 		while ((received_data[count] != 'r') && (received_data[count] != 'w')
-				&& (count < len))
+				&& (received_data[count] != 'p') && (count < len))
 		{
 			count++;
 		}
-		if ((received_data[count] == 'r') && (received_data[count + 1] == 'e')
+		if ((received_data[count] == 'r') && (received_data[count + 1] == 'e') //Envoi de toutes les infos du dati soit : la config, l'id sigfox, Le choix d'IMU etc...
 				&& (received_data[count + 2] == 'a')
 				&& (received_data[count + 3] == 'd'))
 		{
-			uint8_t buffer[] = "ID SIGFOX + Vbat";
-			uint8_t send_buffer2[nb_parametre];
+			uint8_t send_buffer2[64];
 			uint8_t send_buffer3[64];
-			CDC_Transmit_FS(buffer, sizeof(buffer));
+			sprintf(send_buffer3, "INFO,%s,%d,%d,%s,%s,%s", ID_Sigfox,
+					TabGen[VBAT_mV], TabGen[BAT_VALUE], Hard_conf, Code_name,
+					Client);
+			CDC_Transmit_FS(send_buffer3, strlen(send_buffer3)); //Transmit USB
 			memset(received_data, 0, len);
 			vibration_LBL(1, 0, 200);
 			ee_init();
-			ee_read(0, sizeof(send_buffer2), send_buffer2);
-			sprintf(send_buffer3,
-					"CONFIG,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d",
+			ee_read(0, nb_parametre, send_buffer2); //Read eeprom (add: 0x0803F800)
+			sprintf(send_buffer2,
+					"CONFIG,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d",
 					send_buffer2[0], send_buffer2[1], send_buffer2[2],
 					send_buffer2[3], send_buffer2[4], send_buffer2[5],
 					send_buffer2[6], send_buffer2[7], send_buffer2[8],
 					send_buffer2[9], send_buffer2[10], send_buffer2[11],
-					send_buffer2[12], send_buffer2[13], send_buffer2[14]);
-			CDC_Transmit_FS(send_buffer3, strlen(send_buffer3));
+					send_buffer2[12], send_buffer2[13], send_buffer2[14],
+					send_buffer2[15], send_buffer2[16]);
+			CDC_Transmit_FS(send_buffer2, strlen(send_buffer2));//Transmit USB
 		}
-		else if ((received_data[count] == 'w')
+		else if ((received_data[count] == 'w')	//Reception de la nouvelle config
 				&& (received_data[count + 1] == 'r')
 				&& (received_data[count + 2] == 'i')
 				&& (received_data[count + 3] == 't')
@@ -2014,14 +2018,14 @@ void Task_USB_Configuration(void)
 				tabint[i] = atoi(tabtemp2);
 				config_data_received = strtok(NULL, ",");
 				i++;
-			}
+			}	//Split de la chaine de caractère par ',' puis convert to int
 			c1.tps_immo = tabint[1];
 			c1.tps_PerteDeVerticalite = tabint[2];
 			c1.tps_GPS_ON = tabint[3];
 			c1.tps_GPS_OFF = tabint[4];
 			c1.tps_Alarme = tabint[5];
 			c1.chute_Actif = tabint[6];
-			c1.malaise_Actif = tabint[7];
+			c1.loraP2P = tabint[7];
 			c1.com_sigfox = tabint[8];
 			c1.com_LoRa = tabint[9];
 			c1.GPS_Actif = tabint[10];
@@ -2030,6 +2034,8 @@ void Task_USB_Configuration(void)
 			c1.Sensibilite_chute = tabint[13];
 			c1.tps_chute = tabint[14];
 			c1.Angle = tabint[15];
+			c1.colision_Actif = tabint[16];
+			c1.biGaz = tabint[17];
 			uint8_t buffer[] = "config ok";
 			CDC_Transmit_FS(buffer, sizeof(buffer));
 			memset(received_data, 0, len);
@@ -2038,33 +2044,58 @@ void Task_USB_Configuration(void)
 			ee_init();
 			uint8_t d[] =
 			{ c1.tps_immo, c1.tps_PerteDeVerticalite, c1.tps_GPS_ON,
-					c1.tps_GPS_OFF, c1.tps_Alarme, c1.chute_Actif,
-					c1.malaise_Actif, c1.com_sigfox, c1.com_LoRa, c1.GPS_Actif,
-					c1.Immo_Actif, c1.Verti_Actif, c1.Sensibilite_chute,
-					c1.tps_chute, c1.Angle};
+					c1.tps_GPS_OFF, c1.tps_Alarme, c1.chute_Actif, c1.loraP2P,
+					c1.com_sigfox, c1.com_LoRa, c1.GPS_Actif, c1.Immo_Actif,
+					c1.Verti_Actif, c1.Sensibilite_chute, c1.tps_chute,
+					c1.Angle, c1.colision_Actif, c1.biGaz };
 			uint8_t dr[sizeof(d)];
 			ee_read(0, sizeof(d), dr);
-			if ((c1.tps_immo != dr[0]) || (c1.tps_PerteDeVerticalite != dr[1])
+			if ((c1.tps_immo != dr[0]) || (c1.tps_PerteDeVerticalite != dr[1])	//Comparaison des nouveaux paramètre avec les anciens
 					|| (c1.tps_GPS_ON != dr[2]) || (c1.tps_GPS_OFF != dr[3])
 					|| (c1.tps_Alarme != dr[4]) || (c1.chute_Actif != dr[5])
-					|| (c1.malaise_Actif != dr[6]) || (c1.com_sigfox != dr[7])
+					|| (c1.loraP2P != dr[6]) || (c1.com_sigfox != dr[7])
 					|| (c1.com_LoRa != dr[8]) || (c1.GPS_Actif != dr[9])
 					|| (c1.Immo_Actif != dr[10]) || (c1.Verti_Actif != dr[11])
 					|| (c1.Sensibilite_chute != dr[12])
-					|| (c1.tps_chute != dr[13]) || (c1.Angle != dr[14]))
+					|| (c1.tps_chute != dr[13]) || (c1.Angle != dr[14])
+					|| (c1.colision_Actif != dr[15]) || (c1.biGaz != dr[16]))
 			{
 				ee_writeToRam(0, sizeof(d), d);
-				ee_commit();
+				ee_commit();	//Ecriture dans l'eeprom (add: 0x0803F800)
 				vibration_LBL(2, 200, 200);
 			}
 			ee_read(0, sizeof(d), dr);
 			sprintf(send_buffer,
-					"CONFIG,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d",
+					"CONFIG,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d,%02d",
 					dr[0], dr[1], dr[2], dr[3], dr[4], dr[5], dr[6], dr[7],
-					dr[8], dr[9], dr[10], dr[11], dr[12], dr[13], dr[14]);
-			CDC_Transmit_FS(send_buffer, strlen(send_buffer));
+					dr[8], dr[9], dr[10], dr[11], dr[12], dr[13], dr[14],
+					dr[15], dr[16]);
+			CDC_Transmit_FS(send_buffer, strlen(send_buffer)); //Renvoi de la config fraichement chargée
+		}
+		else if ((received_data[count] == 'p')	//Reception des données de properties (ex: nom du client, nom du code, Choix de la config Hardware)
+				&& (received_data[count + 1] == 'r')
+				&& (received_data[count + 2] == 'o')
+				&& (received_data[count + 3] == 'p'))
+		{
+			uint8_t re_Hard_conf;
+			unsigned char re_Client[16];
+			uint8_t i = 0;
+			while (i < len)
+			{
+				if ((received_data[i] == ',') && (received_data[i + 2] == ',')) //Split de la chaine de caractère par ','
+				{
+					uint8_t j = i + 3;
+					re_Hard_conf = received_data[i + 1];
+					for (int k = 0; k <= 16; k++)
+					{
+						re_Client[k] = received_data[j];
+						j++;
+					}
+				}
+				i++;
+			}
+			memset(received_data, 0, len);
+			AskProperties(re_Hard_conf,re_Client);	//Envoi des données reçu et traiter pour comparaison et écriture
 		}
 	}
 }
-
-

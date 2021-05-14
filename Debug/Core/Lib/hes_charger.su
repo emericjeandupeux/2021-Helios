@@ -1,2 +1,2 @@
 hes_charger.c:8:6:chargerRead	48	static
-hes_charger.c:34:6:ReadBat	80	static
+hes_charger.c:30:6:ReadBat	80	static

@@ -58,7 +58,7 @@ void PowerOffNemeus()
 // Activate the LoraWan layer
 void LoraWanOn(void)
 {
-	if(LORAWANOK == 1)
+	if(c1.com_LoRa == 1)
 	{
 		//TurnOffAllLayers();
 		SendMess("AT+MAC=SDR,SF12BW125,10,001F,0,0\n", NEMEUS_UART_PORT);  // active lorawan
@@ -71,7 +71,7 @@ void LoraWanOn(void)
 /* Ask to join the LoraWan network. /!\ Can't join before receiving this key/adress. It usually takes 7 - 12 minutes before getting it with Objenious /!\ */
 void LoraWanAskKey(int TabGen[])
 {
-	if(LORAWANOK == 1)
+	if(c1.com_LoRa == 1)
 	{
 		SendMess("AT+MAC=RDEVADDR\n", NEMEUS_UART_PORT);  // demande de cle  // should wait 5s before using nemeus module
 	}
@@ -80,7 +80,7 @@ void LoraWanAskKey(int TabGen[])
 // Send a message when you finally joined LoraWan network
 void SendOnLora(void)
 {
-	if(LORAWANOK == 1)
+	if(c1.com_LoRa == 1)
 	{
 		HAL_Delay(1000);
 		SendMess("AT+MAC=SNDBIN,000000000000,6,2,0\n", NEMEUS_UART_PORT); // should wait 5s before using nemeus module
@@ -90,7 +90,7 @@ void SendOnLora(void)
 // Send a string of hexa using LoraWan, to objenious
 void SendMessLoraWan(char buffer_lorawan[])
 {
-	if(LORAWANOK == 1)
+	if(c1.com_LoRa == 1)
 	{
 		char buffer_all[40];
 		sprintf(buffer_all,"AT+MAC=SNDBIN,%s,3,2,0\n", buffer_lorawan);  // %s,buffersig
@@ -107,7 +107,7 @@ void SendMessLoraWan(char buffer_lorawan[])
 // Ask Nemeus module the current state of the Sigfox layer
 void SendIdAskSF(void)
 {
-		if (SIGFOXOK == 1)
+		if (c1.com_sigfox == 1)
 	{
 		SendMess("AT+SF=?\n", NEMEUS_UART_PORT);
 	}
@@ -116,7 +116,7 @@ void SendIdAskSF(void)
 // Turn on Sigfox layer
 void SigfoxOn(void)
 {
-	if (SIGFOXOK == 1)
+	if (c1.com_sigfox == 1)
 	{
 		//SendMess("AT+GA= DIND,1,880201\n", NEMEUS_UART_PORT);
 
@@ -128,7 +128,7 @@ void SigfoxOn(void)
 // Send a string of hexa using Sigfox
 void SendMessSigfox(char buffer_sig[], int TabGen[]) 
 {
-	if (SIGFOXOK == 1)
+	if (c1.com_sigfox == 1)
 	{
 		char buffer_all[50];
 
@@ -144,7 +144,7 @@ void SendMessSigfox(char buffer_sig[], int TabGen[])
 //Message sent at startup
 void SendOnMessSigfox(uint8_t b_downlink)
 {
-	if (SIGFOXOK == 1)
+	if (c1.com_sigfox == 1)
 	{	
 		HAL_Delay(500);
 		if (b_downlink == 1)
@@ -157,7 +157,7 @@ void SendOnMessSigfox(uint8_t b_downlink)
 //Message sent when shuting down(not used/needed?)
 void SendOffMessSigfox(void) 
 {
-	if (SIGFOXOK == 1)
+	if (c1.com_sigfox == 1)
 	{
 		SendMess("AT+SF=SNDBIN,111111111111,0\n", NEMEUS_UART_PORT); // should wait 5s before using nemeus module
 	}
@@ -257,7 +257,7 @@ void PingHelios_Rak811( void )
 //
 void SendTestLora(void)
 {
-	if(LORAP2POK == 1)
+	if(c1.loraP2P == 1)
 	{
 		SendMess("AT+RF=ON\n", NEMEUS_UART_PORT);
 		SendMess("AT+RFTX=SET,LORA,868100000,14,125000,7\n", NEMEUS_UART_PORT);
@@ -268,7 +268,7 @@ void SendTestLora(void)
 // Send a message using Lora P2P
 void SendMessLora(char buffer_Lora[])
 {
-		if(LORAP2POK == 1)
+		if(c1.loraP2P == 1)
 	{
 		char buffer_all[34];
 
@@ -280,7 +280,7 @@ void SendMessLora(char buffer_Lora[])
 // Activate the Lora/LoraWan listening mode to intercept messages
 void ContinuousRxLora(void)
 {
-	if(LORAP2POK == 1)
+	if(c1.loraP2P == 1)
 	{
 		TurnOffAllLayers();
 		SendMess("AT+RFTX=SET,LORA,868100000,14,125000,7\n", NEMEUS_UART_PORT);
@@ -490,7 +490,7 @@ void BuildMessGPS(char buffer_sig[], int TabGen[], float TabFloatValue[], uint32
 	//49,68,70
 
 
-	if(LORAWANOK == 1 && SIGFOXOK == 1)
+	if(c1.com_LoRa == 1 && c1.com_sigfox == 1)
 		buffer_sig[15] = '2';
 
 }

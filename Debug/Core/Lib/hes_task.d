@@ -44,7 +44,7 @@ Core/Lib/hes_task.o: ../Core/Lib/hes_task.c ../Core/Lib/hes_task.h \
  ../Core/Inc/usart.h ../Core/Inc/main.h ../Core/Lib/dco_display.h \
  ../Core/Lib/dco_hestiam.h ../Core/Lib/dco_images.h \
  ../Core/Lib/dco_REGAZ.h ../Core/Lib/hes_gps.h \
- ../Core/Lib/hes_sigfoxlora.h
+ ../Core/Lib/hes_sigfoxlora.h ../Core/Lib/hes_properties.h
 
 ../Core/Lib/hes_task.h:
 
@@ -161,3 +161,5 @@ Core/Lib/hes_task.o: ../Core/Lib/hes_task.c ../Core/Lib/hes_task.h \
 ../Core/Lib/hes_gps.h:
 
 ../Core/Lib/hes_sigfoxlora.h:
+
+../Core/Lib/hes_properties.h:

@@ -1,5 +1,5 @@
-dco_display.c:954:9:u8x8_byte_hw_i2c	24	static
-dco_display.c:996:9:u8x8_gpio_and_delay	8	static
+dco_display.c:957:9:u8x8_byte_hw_i2c	24	static
+dco_display.c:999:9:u8x8_gpio_and_delay	8	static
 dco_display.c:53:6:display_InitBis	8	static
 dco_display.c:200:6:ClearScreen	0	static
 dco_display.c:208:6:display_Print_PPM	40	static
@@ -15,11 +15,11 @@ dco_display.c:42:6:display_Init	8	static
 dco_display.c:626:6:display_AlerteDanger	48	static
 dco_display.c:708:6:display_SendMess	24	static
 dco_display.c:719:6:display_AlerteGaz	0	static
-dco_display.c:727:6:display_Alerte	40	static
-dco_display.c:861:6:display_wait	24	static
-dco_display.c:943:6:display_Print	16	static
-dco_display.c:1033:6:display_Print_Sound_Level	24	static
-dco_display.c:1062:6:display_Print_UART	32	static
-dco_display.c:1103:6:display_BatteryLvl	16	static
+dco_display.c:727:6:display_Alerte	48	static
+dco_display.c:864:6:display_wait	24	static
+dco_display.c:946:6:display_Print	16	static
+dco_display.c:1036:6:display_Print_Sound_Level	24	static
+dco_display.c:1065:6:display_Print_UART	32	static
+dco_display.c:1106:6:display_BatteryLvl	16	static
 dco_display.c:68:6:display_dco	224	static
 dco_display.c:418:6:RepeaterLinkStatus	40	static

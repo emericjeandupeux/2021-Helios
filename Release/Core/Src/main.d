@@ -65,13 +65,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Core/Src/../Lib/hes_sigfoxlora.h ../Core/Src/../Lib/dwm_api.h \
  ../Core/Src/../Lib/dwm1001_tlv.h ../Core/Src/../Lib/dwm1001_tlv.h \
  ../Core/Src/../Lib/lis2dh12_reg.h ../Core/Src/../Lib/hes_fct.h \
- ../Core/Src/../Lib/hes_uart_CarteGaz.h ../Core/Src/../Lib/eeprom_emul.h \
- ../Core/Src/../Lib/eeprom_emul_conf.h \
- ../Core/Src/../Lib/eeprom_emul_types.h \
- ../Core/Src/../Lib/flash_interface.h \
- ../Core/Src/../Lib/../Src/stm32l4xx_ll_bus.h \
- ../Core/Src/../Lib/../Src/stm32l4xx_ll_crc.h \
- ../Core/Src/../Lib/eeprom_flash.h
+ ../Core/Src/../Lib/hes_uart_CarteGaz.h ../Core/Src/../Lib/hes_ee.h
 
 ../Core/Inc/main.h:
 
@@ -259,16 +253,4 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 
 ../Core/Src/../Lib/hes_uart_CarteGaz.h:
 
-../Core/Src/../Lib/eeprom_emul.h:
-
-../Core/Src/../Lib/eeprom_emul_conf.h:
-
-../Core/Src/../Lib/eeprom_emul_types.h:
-
-../Core/Src/../Lib/flash_interface.h:
-
-../Core/Src/../Lib/../Src/stm32l4xx_ll_bus.h:
-
-../Core/Src/../Lib/../Src/stm32l4xx_ll_crc.h:
-
-../Core/Src/../Lib/eeprom_flash.h:
+../Core/Src/../Lib/hes_ee.h:

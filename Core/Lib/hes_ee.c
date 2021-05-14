@@ -1,6 +1,10 @@
 #include "hes_ee.h"
 #include <string.h>
 
+// Adresse des parametre (17): 0x0803F800
+// Adresse ID_Sigfox (8) : 0x0803F860
+// Visible dans STMProgrammer en mode DFU (Data width 8bits)
+
 #define   PAGE                  0
 #define   SECTOR                1
 #define   PAGE_NUM              2

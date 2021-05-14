@@ -24,6 +24,7 @@ C_SRCS += \
 ../Core/Lib/hes_imu.c \
 ../Core/Lib/hes_led.c \
 ../Core/Lib/hes_powersave.c \
+../Core/Lib/hes_properties.c \
 ../Core/Lib/hes_screen.c \
 ../Core/Lib/hes_sequencer.c \
 ../Core/Lib/hes_sigfoxlora.c \
@@ -52,6 +53,7 @@ OBJS += \
 ./Core/Lib/hes_imu.o \
 ./Core/Lib/hes_led.o \
 ./Core/Lib/hes_powersave.o \
+./Core/Lib/hes_properties.o \
 ./Core/Lib/hes_screen.o \
 ./Core/Lib/hes_sequencer.o \
 ./Core/Lib/hes_sigfoxlora.o \
@@ -80,6 +82,7 @@ C_DEPS += \
 ./Core/Lib/hes_imu.d \
 ./Core/Lib/hes_led.d \
 ./Core/Lib/hes_powersave.d \
+./Core/Lib/hes_properties.d \
 ./Core/Lib/hes_screen.d \
 ./Core/Lib/hes_sequencer.d \
 ./Core/Lib/hes_sigfoxlora.d \
@@ -128,6 +131,8 @@ Core/Lib/hes_led.o: ../Core/Lib/hes_led.c Core/Lib/subdir.mk
 	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DUSE_HAL_DRIVER -DDEBUG -DSTM32L433xx -c -I../Core/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I../Drivers/CMSIS/Include -I../USB_DEVICE/App -I../USB_DEVICE/Target -I../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I../Middlewares/ST/STM32_USB_Device_Library/Class/DFU/Inc -O0 -ffunction-sections -fdata-sections -Wall -Wextra -Wfatal-errors -pedantic -Wmissing-include-dirs -fstack-usage -MMD -MP -MF"Core/Lib/hes_led.d" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
 Core/Lib/hes_powersave.o: ../Core/Lib/hes_powersave.c Core/Lib/subdir.mk
 	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DUSE_HAL_DRIVER -DDEBUG -DSTM32L433xx -c -I../Core/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I../Drivers/CMSIS/Include -I../USB_DEVICE/App -I../USB_DEVICE/Target -I../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I../Middlewares/ST/STM32_USB_Device_Library/Class/DFU/Inc -O0 -ffunction-sections -fdata-sections -Wall -Wextra -Wfatal-errors -pedantic -Wmissing-include-dirs -fstack-usage -MMD -MP -MF"Core/Lib/hes_powersave.d" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
+Core/Lib/hes_properties.o: ../Core/Lib/hes_properties.c Core/Lib/subdir.mk
+	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DUSE_HAL_DRIVER -DDEBUG -DSTM32L433xx -c -I../Core/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I../Drivers/CMSIS/Include -I../USB_DEVICE/App -I../USB_DEVICE/Target -I../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I../Middlewares/ST/STM32_USB_Device_Library/Class/DFU/Inc -O0 -ffunction-sections -fdata-sections -Wall -Wextra -Wfatal-errors -pedantic -Wmissing-include-dirs -fstack-usage -MMD -MP -MF"Core/Lib/hes_properties.d" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
 Core/Lib/hes_screen.o: ../Core/Lib/hes_screen.c Core/Lib/subdir.mk
 	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DUSE_HAL_DRIVER -DDEBUG -DSTM32L433xx -c -I../Core/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I../Drivers/CMSIS/Include -I../USB_DEVICE/App -I../USB_DEVICE/Target -I../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I../Middlewares/ST/STM32_USB_Device_Library/Class/DFU/Inc -O0 -ffunction-sections -fdata-sections -Wall -Wextra -Wfatal-errors -pedantic -Wmissing-include-dirs -fstack-usage -MMD -MP -MF"Core/Lib/hes_screen.d" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
 Core/Lib/hes_sequencer.o: ../Core/Lib/hes_sequencer.c Core/Lib/subdir.mk

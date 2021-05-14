@@ -1,7 +1,7 @@
-hes_ee.c:24:6:ee_init	8	static
-hes_ee.c:33:6:ee_format	40	static
-hes_ee.c:75:6:ee_read	32	static
-hes_ee.c:94:6:ee_write	104	static
-hes_ee.c:143:6:ee_writeToRam	24	static
-hes_ee.c:157:7:ee_commit	8	static
-hes_ee.c:168:11:ee_maxVirtualAddress	4	static
+hes_ee.c:28:6:ee_init	8	static
+hes_ee.c:37:6:ee_format	40	static
+hes_ee.c:79:6:ee_read	32	static
+hes_ee.c:98:6:ee_write	104	static
+hes_ee.c:147:6:ee_writeToRam	24	static
+hes_ee.c:161:7:ee_commit	8	static
+hes_ee.c:172:11:ee_maxVirtualAddress	4	static

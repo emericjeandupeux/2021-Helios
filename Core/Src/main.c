@@ -23,9 +23,6 @@
 
 #define WHILEON 1 // !! IF 0 no while(1)  / for developpement purpose only
 
-#define SEC_DETECT_MALAISE 600 //000
-#define SEC_DETECT_IMMO 900
-
 //#define ping_lorawan
 
 #define LTAB 5
@@ -63,7 +60,10 @@ uint8_t seuil_EX = AUCUN;
 
 uint32_t millis = 0;
 uint32_t time_network_rep = 0;
-uint8_t nb_parametre = 15;
+uint8_t nb_parametre = 17;
+unsigned char ID_Sigfox[8] = "NO ID";
+extern struct config_data c1;
+uint8_t DMA_Done = 0;
 
 uint8_t batt_20 = 0;
 uint8_t batt_15 = 0;
@@ -72,7 +72,10 @@ uint8_t batt_5 = 0;
 uint32_t low_bat_shutdown = 0;
 
 uint16_t accres;
+float accres2;
 uint16_t accy;
+float accy2;
+float angle;
 uint8_t once_rak = 1;
 uint8_t once_gps = 1;
 uint8_t once_nem = 1;
@@ -111,6 +114,7 @@ uint8_t ping_rep_ok = 0;
 //#include "../Lib/eeprom_emul.h"
 //#include "../Lib/eeprom_flash.h"
 #include "../Lib/hes_ee.h"
+#include "../Lib/hes_properties.h"
 
 uint8_t DUAL_STATE_LS = NO_ACK_PENDING;
 
@@ -315,15 +319,6 @@ int main(void)
 	{
 		Rx_bufferNemeus[i_fct] = 0;
 	}
-	TabGen[NMAXS_MALAISE] = SEC_DETECT_MALAISE * 100; // duration of malaise on sample (100 Hz) x [s] ;
-	TabGen[NMAXS_IMMO] = SEC_DETECT_IMMO * 100; // duration of immo on sample (100 Hz) x [s] ;
-	TabGen[NMAXS_FALL] = SEC_DETECT_FALL * 100; // duration of fall on sample (100 Hz) x [s] ;
-	TabGen[FALL_COND_2] = 1;
-	TabGen[GPS_START_IT] = 1;
-	TabGen[TYPE_ALERT] = NONE_ALERT;
-
-	TabGen[BAT_VALUE] = 100;
-	TabGen[SCREENSTATE] = 1;
 
 	//TabGirlBoardTimer[GIRL_TIM_READY_OUT] = 1 ;
 
@@ -428,13 +423,25 @@ int main(void)
 		powersave = PowerSave();
 	//RCC_GetFlagStatus(RCC_FLAG_IWDGRST);
 
-	//LBL
+	//Chargement config
 	default_value();
 	Load_configuration_value();
+	LoadProperties();
+	//Démarrage Nemeus et enregistrement/chargement de l'Id_sigfox
+	Load_ID_Sigfox(AskSigFox_ID());
+
+	TabGen[NMAXS_MALAISE] = c1.tps_PerteDeVerticalite * 60 * 100; // duration of malaise on sample (100 Hz) x [s] ;
+	TabGen[NMAXS_IMMO] = c1.tps_immo * 60 * 100; // duration of immo on sample (100 Hz) x [s] ;
+	TabGen[NMAXS_FALL] = c1.tps_chute * 100; // duration of fall on sample (100 Hz) x [s] ;
+	TabGen[FALL_COND_2] = 1;
+	TabGen[GPS_START_IT] = 1;
+	TabGen[TYPE_ALERT] = NONE_ALERT;
+
+	TabGen[BAT_VALUE] = 100;
+	TabGen[SCREENSTATE] = 1;
 
 	if (powersave == 0)
 	{
-
 		HAL_Delay(2);
 		LedOn(0, 0, 50, TabGen);
 
@@ -454,7 +461,7 @@ int main(void)
 		HAL_GPIO_WritePin(GAZ_WU_GPIO_Port, GAZ_WU_Pin, GPIO_PIN_RESET);
 	}
 
-	if (GPSOK == 0)
+	if (c1.GPS_Actif == 0)
 	{
 		GpsStop();
 	}
@@ -476,10 +483,13 @@ int main(void)
 
 	if (SUEZ == 0)
 	{
-		WakeUpNemeusLS();
-		RebootNemeusLS(TabGen);
+		if (DMA_Done == 0)
+		{
+			WakeUpNemeusLS();
+			RebootNemeusLS(TabGen);
+		}
 
-		if (SIGFOXOK == 1 && TabGen[SIGFOX_STATE] == 0 && LORAWANOK == 0)
+		if (c1.com_sigfox == 1 && TabGen[SIGFOX_STATE] == 0 && c1.com_LoRa == 0)
 		{
 			SigfoxOn();
 			TimerLastSigfoxMessage = HAL_GetTick();
@@ -487,9 +497,9 @@ int main(void)
 			SendOnMessSigfox(!REBOOT_FROM_WATCHDOG);
 			DUAL_STATE_LS = ACK_SF_PENDING;
 		}
-		else if (LORAWANOK == 1)
+		else if (c1.com_LoRa == 1)
 		{
-			if (SIGFOXOK == 1)
+			if (c1.com_sigfox == 1)
 				SigfoxOn();
 			HAL_Delay(1000);
 
@@ -502,7 +512,7 @@ int main(void)
 		TimerLastSigfoxMessage = HAL_GetTick();
 	}
 
-	if (LORAP2POK == 1)
+	if (c1.loraP2P == 1)
 	{
 		if (RAK811 == 1)
 		{
@@ -519,7 +529,6 @@ int main(void)
 		}
 		else
 		{
-
 			if (REBOOT_FROM_WATCHDOG == 0)
 			{
 				SendTestLora();
@@ -530,7 +539,7 @@ int main(void)
 
 	HAL_TIM_Base_Start_IT(&htim7);
 	HAL_Delay(1);
-	if (GPSOK == 1)
+	if (c1.GPS_Actif == 1)
 	{
 		TabGen[GPS_ON] = 1;
 	}
@@ -567,13 +576,10 @@ int main(void)
 		HAL_UART_Receive_DMA(&huart1, Rx_RAK811, MAXITRAK);
 	}
 
-	if (DMA_NEMEUS_ON == 1)
+	if ((DMA_NEMEUS_ON) == 1 && (DMA_Done == 0))
 	{
 		HAL_UART_Receive_DMA(&huart3, Rx_Nemeus, MAXITNEMEUS);
 	}
-
-	//uint8_t buffer[] = "Helios Configuration Mode\r\n";
-	//CDC_Transmit_FS(buffer, sizeof(buffer));
 
 	/* ----------------------------------WHILE BEGIN---------------------------------------------*/
 
@@ -600,10 +606,10 @@ int main(void)
 		if (TabGen[GPS_GOOD] == 1)
 		{
 			if (millis - TabTimer[LAST_UPDATE_GPS] < 15 * 60 * 1000)
-				TabGen[GPS_DURATION] = GPSDURA;
+				TabGen[GPS_DURATION] = c1.tps_GPS_ON;
 		}
 
-		if (GPSOK == 1) // GPS IS ENABLED
+		if (c1.GPS_Actif == 1) // GPS IS ENABLED
 		{
 			GPS_Management();
 		}
@@ -626,12 +632,12 @@ int main(void)
 			}
 		}
 
-		if (LORAP2POK == 1)
+		if (c1.loraP2P == 1)
 		{
 			TaskSendLoraNoGPS(TabGen, TabFloatValue, TabTimer);
 		}
 
-		if (LORAWANOK == 1)
+		if (c1.com_LoRa == 1)
 		{ 	// RSSI MANAGEMENT
 			if ((DUAL_STATE_LS == NO_ACK_SF_RETRY) || // Downlink failed for sigfox, try again
 					(((HAL_GetTick() - AskJoinTimeLoraWan) > 1 * 15 * 1000)
@@ -675,14 +681,14 @@ int main(void)
 		if (TabGen[DUAL_SEND] == 1)
 			TaskSendDUAL(TabGen, TabFloatValue, TabTimer, WifiName);
 
-		if (SIGFOXOK == 1)
+		if (c1.com_sigfox == 1)
 		{
 			if (TabGen[ALERT_PENDING] == 1 && TabGen[SIGFOX_SEND] == 1)
 				TaskSendSigfox(TabGen, TabFloatValue, TabTimer, WifiName);
 		}
 
 #ifdef ping_lorawan
-		if (LORAWANOK == 1)
+		if (c1.com_LoRa == 1)
 		{
 			if ( (HAL_GetTick() - TimerLastLoraMessage) > 5 * 60 * 1000)
 			{
@@ -731,14 +737,14 @@ int main(void)
 				{
 					Measure_IMU(buffer6); // read 6x register of IMU
 
-					TaskAlertAcc(accy, accres, TabAlert, TabGen); // check Alert for Malaise and Immo
+					TaskAlertAcc(angle, accres, TabAlert, TabGen, config_seuil()); // check Alert for Malaise and Immo
 
 					TaskFallManager(ar, y, accres, accy, TabGen);
 				}
 			}
 		}
 
-		if (LORAP2POK == 1)
+		if (c1.loraP2P == 1)
 		{
 			if (DMA_RAK_ON == 1)
 			{
@@ -790,7 +796,7 @@ int main(void)
 			Repeater_Link_Management();
 		}
 
-		if (DMA_GPS_ON == 1 && GPSOK == 1)
+		if (DMA_GPS_ON == 1 && c1.GPS_Actif == 1)
 		{
 			uint8_t buffer[MAXITGPS] =
 			{ 0 };
@@ -1115,6 +1121,15 @@ void EE_EndOfCleanup_UserCallback(void)
 {
 	ErasingOnGoing = 0;
 
+}
+
+void WakeUpNemeus_forID(void)
+{
+	WakeUpNemeusLS();
+	RebootNemeusLS(TabGen);
+	HAL_UART_Receive_DMA(&huart3, Rx_Nemeus, MAXITNEMEUS);
+	DMA_Done = 1;
+	HAL_Delay(200);
 }
 
 void vibration_LBL(uint8_t nb_de_vibration, unsigned short pause_vib,

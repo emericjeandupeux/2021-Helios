@@ -10,8 +10,6 @@
 #include "stm32L4xx_hal.h"
 
 
-#define SIGDURATION 30
-
 #define INITIA 0 // !! IF 0 no BLE SCREEN and GPS initialization / for developpement purpose only
 
 #define SUEZ 0 // 1 :
@@ -24,12 +22,17 @@
 
 /* ---------- SELECT IMU -----------*/
 
-//#define DWM1001C // accelero helios v2
+#define DWM1001C // accelero helios v2
 
-//#define MPU6050_ADDR 0xD0	// accelero helios v3 temporary fix (blue board on DWM footprint)
-
+#define MPU6050_ADDR 0xD0	// accelero helios v3 temporary fix (blue board on DWM footprint)
 
 #define MC3413 0x98  // accelero helios v3 (green board with RAK) on DWM footprint and v4
+
+/*
+Hard_conf[0] = 1 	MPU6050_ADDR 0xD0
+Hard_conf[0] = 2 	MC3413 0x98
+Hard_conf[0] = 3 	DWM1001C
+ */
 
 /* ---------- SELECT IMU -----------*/
 
@@ -51,14 +54,10 @@
 #define BUZOK 				1
 
 #define WIFI				0
-#define SIGFOXOK 			0
-#define LORAP2POK 			1
-#define LORAP2P_RECEIVER 	0
-#define LORAWANOK 			0
 #define RAK811 				1
 #define DECA1004_OK 		0
 
-#define GPSOK 				0
+
 
 // DMA
 #define DMA_GPS_ON 			0
@@ -75,14 +74,10 @@
 #define BUZOK 				1
 
 #define WIFI				0
-#define SIGFOXOK 			1
-#define LORAWANOK 			0
-#define LORAP2POK 			0
-#define LORAP2P_RECEIVER 	0
 #define RAK811 				0
 #define DECA1004_OK 		0
 
-#define GPSOK 				1
+
 
 #define DMA_GPS_ON 			1
 #define DMA_RAK_ON 			0
@@ -91,16 +86,9 @@
 #endif
 
 
-//#define IMMO_ACTIF
-//#define PERTE_V_ACTIF
-#define CHUTE_ACTIF
-
-
 #define BOX4GAZ 			0  // 1 : if REGAZ project ,  0 : else
 #define DISPLAYCHARGHES 	1 // 1 : display HESTIAM on Init , 0 : display REGAZ on Init
 
-
-#define SEC_DETECT_FALL 20
 
 #define BAT_MIN 3300
 #define BAT_MAX 4100
@@ -116,11 +104,8 @@
 #endif
 
 
-#define GPSDURA   	5 //[min]   // EJ: was 30-15
-#define GPSSTOP   	1 //[min]
-#define GPSREPEAT 	1  //[Min] // EJ: was 60
 
-#define NB_MS_REALERTGAZ 60000
+#define NB_MS_REALERTGAZ 5000
 
 /////////////////////////////
 // for TabAlert[]
@@ -157,9 +142,9 @@
 #define SIGFOX_SEND    9
 #define FALL_DELAY    10
 #define FALL_UP_DELAY 11
-#define NMAXS_MALAISE 12 // SEC_DETECT_MALAISE * 100; // duration of malaise on sample (100 Hz) x [s] ;
-#define NMAXS_IMMO    13 // SEC_DETECT_IMMO * 100; // duration of immo on sample (100 Hz) x [s] ;
-#define NMAXS_FALL    14 // SEC_DETECT_FALL * 100; // duration of fall on sample (100 Hz) x [s] ; 
+#define NMAXS_MALAISE 12 // c1.tps_PerteDeVerticalite * 60 * 100; // duration of malaise on sample (100 Hz) x [s] ;
+#define NMAXS_IMMO    13 // c1.tps_immo * 60 * 100; // duration of immo on sample (100 Hz) x [s] ;
+#define NMAXS_FALL    14 // c1.tps_chute * 100; // duration of fall on sample (100 Hz) x [s] ; 
 #define NS_MALAISE    15
 #define NS_IMMO       16
 #define NS_FALL       17
@@ -236,6 +221,7 @@
 #define LORAP2P_SEND 	88
 #define DUAL_SEND    	89
 #define AVG_CURRENT 	90
+#define VBAT_mV			91
 //#define ALERT_SENT_WAIT_FOR_DOWNLINK 89
 
 

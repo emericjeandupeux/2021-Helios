@@ -19,6 +19,7 @@
 "Core/Lib/hes_imu.o"
 "Core/Lib/hes_led.o"
 "Core/Lib/hes_powersave.o"
+"Core/Lib/hes_properties.o"
 "Core/Lib/hes_screen.o"
 "Core/Lib/hes_sequencer.o"
 "Core/Lib/hes_sigfoxlora.o"

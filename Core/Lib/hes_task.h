@@ -35,6 +35,11 @@ extern uint8_t yy[400];
 extern int ReadyGirl  ;
 extern uint8_t Rx_Buffergps[MAXITGPS];
 
+extern uint8_t nb_parametre;
+extern uint8_t received_data[64];
+extern struct config_data c1;
+extern unsigned char ID_Sigfox[8];
+extern int TabGen[NB_GEN];
 
 void TaskClearScreen(void);
 

@@ -38,7 +38,7 @@ Core/Lib/hes_imu.o: ../Core/Lib/hes_imu.c ../Core/Lib/hes_imu.h \
  ../Core/Lib/hes_screen.h ../Core/Lib/hes_fonts.h \
  ../Core/Lib/hes_gpio_h3.h ../Core/Inc/main.h \
  ../Core/Inc/../Lib/u8g2/u8g2.h ../Core/Inc/../Lib/u8g2/u8x8.h \
- ../Core/Lib/lis2dh12_reg.h
+ ../Core/Lib/lis2dh12_reg.h ../Core/Lib/hes_properties.h
 
 ../Core/Lib/hes_imu.h:
 
@@ -127,3 +127,5 @@ Core/Lib/hes_imu.o: ../Core/Lib/hes_imu.c ../Core/Lib/hes_imu.h \
 ../Core/Inc/../Lib/u8g2/u8x8.h:
 
 ../Core/Lib/lis2dh12_reg.h:
+
+../Core/Lib/hes_properties.h:

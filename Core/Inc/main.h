@@ -145,6 +145,7 @@ extern uint8_t seuil_CO;
 extern uint8_t seuil_EX;
 
 extern uint8_t extinction;
+
 struct config_data
 {
 	unsigned char tps_immo;
@@ -153,7 +154,7 @@ struct config_data
 	unsigned char tps_GPS_OFF;
 	unsigned char tps_Alarme;
 	unsigned char chute_Actif;
-	unsigned char malaise_Actif;
+	unsigned char loraP2P;
 	unsigned char com_sigfox;
 	unsigned char com_LoRa;
 	unsigned char GPS_Actif;
@@ -162,6 +163,8 @@ struct config_data
 	unsigned char Sensibilite_chute;
 	unsigned char tps_chute;
 	unsigned char Angle;
+	unsigned char colision_Actif;
+	unsigned char biGaz;
 }c1,c_default;
 
 #define SON				8

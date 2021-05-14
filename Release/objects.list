@@ -8,6 +8,7 @@
 "Core/Lib/hes_bms.o"
 "Core/Lib/hes_buzvib.o"
 "Core/Lib/hes_charger.o"
+"Core/Lib/hes_ee.o"
 "Core/Lib/hes_fall.o"
 "Core/Lib/hes_fct.o"
 "Core/Lib/hes_fct_screen.o"

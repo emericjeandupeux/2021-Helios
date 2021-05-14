@@ -13,6 +13,7 @@ C_SRCS += \
 ../Core/Lib/hes_bms.c \
 ../Core/Lib/hes_buzvib.c \
 ../Core/Lib/hes_charger.c \
+../Core/Lib/hes_ee.c \
 ../Core/Lib/hes_fall.c \
 ../Core/Lib/hes_fct.c \
 ../Core/Lib/hes_fct_screen.c \
@@ -40,6 +41,7 @@ OBJS += \
 ./Core/Lib/hes_bms.o \
 ./Core/Lib/hes_buzvib.o \
 ./Core/Lib/hes_charger.o \
+./Core/Lib/hes_ee.o \
 ./Core/Lib/hes_fall.o \
 ./Core/Lib/hes_fct.o \
 ./Core/Lib/hes_fct_screen.o \
@@ -67,6 +69,7 @@ C_DEPS += \
 ./Core/Lib/hes_bms.d \
 ./Core/Lib/hes_buzvib.d \
 ./Core/Lib/hes_charger.d \
+./Core/Lib/hes_ee.d \
 ./Core/Lib/hes_fall.d \
 ./Core/Lib/hes_fct.d \
 ./Core/Lib/hes_fct_screen.d \
@@ -103,6 +106,8 @@ Core/Lib/hes_buzvib.o: ../Core/Lib/hes_buzvib.c Core/Lib/subdir.mk
 	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -DUSE_HAL_DRIVER -DSTM32L433xx -c -I../Core/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I../Drivers/CMSIS/Include -I../USB_DEVICE/App -I../USB_DEVICE/Target -I../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I../Middlewares/ST/STM32_USB_Device_Library/Class/DFU/Inc -Os -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Lib/hes_buzvib.d" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
 Core/Lib/hes_charger.o: ../Core/Lib/hes_charger.c Core/Lib/subdir.mk
 	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -DUSE_HAL_DRIVER -DSTM32L433xx -c -I../Core/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I../Drivers/CMSIS/Include -I../USB_DEVICE/App -I../USB_DEVICE/Target -I../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I../Middlewares/ST/STM32_USB_Device_Library/Class/DFU/Inc -Os -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Lib/hes_charger.d" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
+Core/Lib/hes_ee.o: ../Core/Lib/hes_ee.c Core/Lib/subdir.mk
+	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -DUSE_HAL_DRIVER -DSTM32L433xx -c -I../Core/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I../Drivers/CMSIS/Include -I../USB_DEVICE/App -I../USB_DEVICE/Target -I../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I../Middlewares/ST/STM32_USB_Device_Library/Class/DFU/Inc -Os -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Lib/hes_ee.d" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
 Core/Lib/hes_fall.o: ../Core/Lib/hes_fall.c Core/Lib/subdir.mk
 	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -DUSE_HAL_DRIVER -DSTM32L433xx -c -I../Core/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I../Drivers/CMSIS/Include -I../USB_DEVICE/App -I../USB_DEVICE/Target -I../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I../Middlewares/ST/STM32_USB_Device_Library/Class/DFU/Inc -Os -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Lib/hes_fall.d" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
 Core/Lib/hes_fct.o: ../Core/Lib/hes_fct.c Core/Lib/subdir.mk
