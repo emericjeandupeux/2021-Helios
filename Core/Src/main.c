@@ -34,13 +34,14 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
 #include "dma.h"
 #include "i2c.h"
 #include "iwdg.h"
 #include "tim.h"
 #include "usart.h"
+#include "usb_device.h"
 #include "gpio.h"
-#include "../Lib/USB_CDC/usbd_cdc_if.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -64,6 +65,7 @@ uint8_t seuil_EX = AUCUN;
 uint32_t millis = 0;
 uint32_t time_network_rep = 0;
 uint8_t nb_parametre = 15;
+uint32_t last_vib = 0;
 
 uint8_t batt_20 = 0;
 uint8_t batt_15 = 0;
@@ -76,6 +78,13 @@ uint16_t accy;
 uint8_t once_rak = 1;
 uint8_t once_gps = 1;
 uint8_t once_nem = 1;
+
+uint8_t USB_ON = 0;
+
+
+
+
+
 
 HAL_StatusTypeDef I2C1_OK = HAL_OK;
 
@@ -111,6 +120,18 @@ uint8_t ping_rep_ok = 0;
 //#include "../Lib/eeprom_emul.h"
 //#include "../Lib/eeprom_flash.h"
 #include "../Lib/hes_ee.h"
+
+uint8_t count_gaz = 0;
+uint16_t gaz1_level[NB_SAMPLES_GAZ];
+uint16_t gaz2_level[NB_SAMPLES_GAZ];
+uint32_t gaz1_level_mean = 0;
+uint32_t gaz1_ppm = 0;
+uint32_t gaz2_level_mean = 0;
+uint32_t gaz2_ppm = 0;
+uint8_t gaz_alert_phase = 0;
+uint8_t Calibration_Time_Over = 0;
+
+uint8_t GAZ_THRESHOLD_ALERT = 0;
 
 uint8_t DUAL_STATE_LS = NO_ACK_PENDING;
 
@@ -184,6 +205,7 @@ uint8_t IMU_nodata = 0;
 
 /*!--------DCO AJOUT----------------!*/
 uint8_t ready = 0;
+uint8_t BiGaz_ON = 0;
 
 /*!------ END DCO AJOUT-----------!*/
 
@@ -227,7 +249,6 @@ uint32_t TimeBeforeSFSent = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -238,12 +259,12 @@ void SystemClock_Config(void);
 /* USER CODE END 0 */
 
 /**
- * @brief  The application entry point.
- * @retval int
- */
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
-	/* USER CODE BEGIN 1 */
+  /* USER CODE BEGIN 1 */
 	//EE_Status ee_status = EE_OK;
 	int powersave = 0;
 
@@ -276,8 +297,8 @@ int main(void)
 	InitTaskState(updateLedTab, 1);
 
 	uint32_t Timer_screen;
-	uint32_t TimerLastLoraMessage = 0;
-	uint32_t TimerLastSigfoxMessage = 0;
+	uint32_t TimerLastLoraMessage 	= 0 ;
+	uint32_t TimerLastSigfoxMessage = 0 ;
 
 	/*!-----DCO AJOUT----!*/
 	// Pour la communication UART avec la carte Fille *
@@ -327,21 +348,21 @@ int main(void)
 
 	//TabGirlBoardTimer[GIRL_TIM_READY_OUT] = 1 ;
 
-	/* USER CODE END 1 */
+  /* USER CODE END 1 */
 
-	/* MCU Configuration--------------------------------------------------------*/
+  /* MCU Configuration--------------------------------------------------------*/
 
-	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-	HAL_Init();
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
 
-	/* USER CODE BEGIN Init */
+  /* USER CODE BEGIN Init */
 
-	/* USER CODE END Init */
+  /* USER CODE END Init */
 
-	/* Configure the system clock */
-	SystemClock_Config();
+  /* Configure the system clock */
+  SystemClock_Config();
 
-	/* USER CODE BEGIN SysInit */
+  /* USER CODE BEGIN SysInit */
 	/* Enable and set FLASH Interrupt priority */
 	/* FLASH interrupt is used for the purpose of pages clean up under interrupt */
 
@@ -353,32 +374,27 @@ int main(void)
 
 	/*!------ END DCO AJOUT-----------!*/
 
-	/* USER CODE END SysInit */
+  /* USER CODE END SysInit */
 
-	/* Initialize all configured peripherals */
+  /* Initialize all configured peripherals */
 
+  /* USER CODE BEGIN 2 */
 	MX_GPIO_Init();
 
-	if (InOn() == 1 && bootloader(3) == 1)
+	if (InSOS() == 1 && bootloader(3) == 1)
 	{
-		GPIO_InitTypeDef GPIO_InitStruct =
-		{ 0 };
+		GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+		OutMotorWu(0);
 		USB_DFU();
 		OutDone1(0); //Stop Powersave part 1
 		OutDone2(1); //Stop Powersave part 2
 
 		/*Configure GPIO pins : PAPin PAPin */
-
-		LedOn(0, 0, 100, TabGen);
+		MX_I2C1_Init();
+		LedOn(0, 100, 100, TabGen);
+		//OutMotorWu(0);
 		HAL_GPIO_DeInit(GPIOA, MOTOR_WU_Pin);
 		__HAL_RCC_GPIOA_CLK_ENABLE();
-		HAL_GPIO_WritePin(GPIOA, MOTOR_WU_Pin, GPIO_PIN_SET);
-
-		GPIO_InitStruct.Pin = MOTOR_WU_Pin;
-		GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-		GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 		jumpToBootloader();
 	}
@@ -388,26 +404,32 @@ int main(void)
 		MX_DMA_Init();
 		MX_I2C1_Init();
 		MX_I2C2_Init();
-		MX_USART1_UART_Init();
+		if(RAK811 == 1)
+			MX_USART1_UART_Init();
+
 		MX_USART2_UART_Init();
-		MX_USART3_UART_Init();
-		MX_TIM7_Init();
-		MX_TIM16_Init();
+
+		if(SIGFOXOK == 1 || LORAWANOK == 1)
+			MX_USART3_UART_Init();
+		MX_TIM7_Init();  // clock timer - IMU
+		MX_TIM16_Init(); // PWM buzzer
 		MX_IWDG_Init();
-		Hes_USB_Config_Mode();
+		if(BiGaz_ON == 1)
+			MX_ADC1_Init();
+		//Hes_USB_Config_Mode();
+
+
 	}
+  /* USER CODE END 2 */
 
-	/* USER CODE BEGIN 2 */
-
-	/* USER CODE END 2 */
-
-	/* Infinite loop */
-	/* USER CODE BEGIN WHILE */
-	HAL_GPIO_WritePin(GAZ_WU_GPIO_Port, GAZ_WU_Pin, GPIO_PIN_SET);
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+	//HAL_GPIO_WritePin(GAZ_WU_GPIO_Port, GAZ_WU_Pin, GPIO_PIN_SET);
 	OuChaIsel(0);
 
-	OutDone1(0); //Stop Powersave part 1
-	OutDone2(1); //Stop Powersave part 2
+	// NO DONE SIGNAL -> keep power until t_DRV or wait for On button pushed in Powersave()
+	OutDone1(0); //Stop Powersave part 1 // PB4 - DONE
+	OutDone2(1); //Stop Powersave part 2 // PB3 - DRV
 	HAL_Delay(1);
 	OutLedWu(1);
 
@@ -419,8 +441,8 @@ int main(void)
 	{
 
 		__HAL_RCC_CLEAR_RESET_FLAGS();
-		OutDone1(0); //Stop Powersave part 1
-		OutDone2(1); //Stop Powersave part 2
+		OutDone1(0); //Stop Powersave part 1 // PB4 - DONE
+		OutDone2(1); //Stop Powersave part 2 // PB3 - DRV
 
 		REBOOT_FROM_WATCHDOG = 1;
 	}
@@ -430,6 +452,7 @@ int main(void)
 
 	//LBL
 	default_value();
+
 	Load_configuration_value();
 
 	if (powersave == 0)
@@ -439,8 +462,10 @@ int main(void)
 		LedOn(0, 0, 50, TabGen);
 
 #ifndef debug_sound_vibration
+
 		if (REBOOT_FROM_WATCHDOG == 0)
 			PowerBuzVib(100);
+
 #endif
 
 	}
@@ -448,7 +473,9 @@ int main(void)
 	HAL_TIM_Base_Start_IT(&htim7);
 
 	ScreenOn();
+
 	display_Init(!REBOOT_FROM_WATCHDOG);
+
 	if (BOX4GAZ == 1)
 	{
 		HAL_GPIO_WritePin(GAZ_WU_GPIO_Port, GAZ_WU_Pin, GPIO_PIN_RESET);
@@ -457,6 +484,7 @@ int main(void)
 	if (GPSOK == 0)
 	{
 		GpsStop();
+
 	}
 	else
 	{
@@ -469,8 +497,32 @@ int main(void)
 
 	/*!--------DCO AJOUT----------------!*/
 
+
+#ifdef DWM1001C
 	OutDwmRst(0);
 	OutDwmWu(0);
+#endif
+	if (RAK811 == 1)
+	{
+		OutDwmRst(0);
+		OutDwmWu(0);
+	}
+
+	I2C1_OK = HAL_OK;
+	if (I2C1_OK == HAL_OK)
+		TaskCharger(TabGen);
+
+	if(TabGen[CHARGEC] == 1)
+	{
+		USB_ON = 1;
+		Hes_USB_Config_Mode();
+	}
+
+	//TaskReadBat(TabGen);
+	//HAL_Delay(100);
+	if (I2C1_OK == HAL_OK)
+		TaskReadBat(TabGen);
+
 
 	/*!--------DCO AJOUT----------------!*/
 
@@ -528,6 +580,12 @@ int main(void)
 		}
 	}
 
+//	if (BiGaz_ON == 1)
+//		OutGazWu(1); //  command for the gaz board (switch on the power supply), board directly connect to 3.3V for now (03/05/21) problem with MOSFET
+//
+
+
+
 	HAL_TIM_Base_Start_IT(&htim7);
 	HAL_Delay(1);
 	if (GPSOK == 1)
@@ -536,11 +594,7 @@ int main(void)
 	}
 	Timer_screen = HAL_GetTick();
 
-#ifndef debug_sound_vibration
-	if (REBOOT_FROM_WATCHDOG == 0)
-		PowerBuzVib(100);
-	//PowerBuz(100);
-#endif
+
 
 	timeBeforeDMA_SF = HAL_GetTick();
 
@@ -572,16 +626,28 @@ int main(void)
 		HAL_UART_Receive_DMA(&huart3, Rx_Nemeus, MAXITNEMEUS);
 	}
 
-	//uint8_t buffer[] = "Helios Configuration Mode\r\n";
-	//CDC_Transmit_FS(buffer, sizeof(buffer));
+
+
+#ifndef debug_sound_vibration
+	if (REBOOT_FROM_WATCHDOG == 0)
+		PowerBuzVib(100);
+#endif
 
 	/* ----------------------------------WHILE BEGIN---------------------------------------------*/
+
+
 
 	while (1)
 	{
 
+
+
+
+
 		uint32_t Time_Now = HAL_GetTick();
 		millis = HAL_GetTick();
+//		if (millis % 5 == 0)
+//			HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 
 		HAL_IWDG_Refresh(&hiwdg);
 
@@ -612,6 +678,10 @@ int main(void)
 
 // ########################## MESSAGE MANAGEMENT #####################################
 
+
+
+		Task_Gaz();
+
 		if (SUEZ == 1 && TabGen[DISTANCE_DETECTED] == 1)
 			TabGen[DISTANCE_DETECTED] = 0;
 
@@ -625,7 +695,6 @@ int main(void)
 				CheckWifi = HAL_GetTick();
 			}
 		}
-
 		if (LORAP2POK == 1)
 		{
 			TaskSendLoraNoGPS(TabGen, TabFloatValue, TabTimer);
@@ -641,8 +710,7 @@ int main(void)
 									|| (DUAL_STATE_LS == LW_JOIN_PENDING)))) // If Lora with ACK not ok 30 seconds after start, Sigfox msg
 			{
 				//TIME TO SEND SIGFOX ON MESSQGE TO GET RSSI
-				if (DUAL_STATE_LS == NO_ACK_SF_RETRY
-						|| DUAL_STATE_LS == LW_JOIN_PENDING)
+				if (DUAL_STATE_LS == NO_ACK_SF_RETRY || DUAL_STATE_LS == LW_JOIN_PENDING)
 				{
 					RebootNemeusLS(TabGen);
 					DUAL_STATE_LS = ACK_SF_PENDING_2;
@@ -652,6 +720,7 @@ int main(void)
 				}
 				else
 					DUAL_STATE_LS = ACK_SF_PENDING;
+
 				SendOnMessSigfox(1);
 
 				AskJoinTimeLoraWan = HAL_GetTick();
@@ -693,31 +762,37 @@ int main(void)
 		#endif			
 
 		// ########################## MESSAGE MANAGEMENT END ##############################
-		Task_USB_Configuration();
+
+		if (USB_ON == 1)
+			Task_USB_Configuration();
 
 		TaskExtButton(TabGen);
 
 		TaskFallTest(TabAlert, TabGen);
 
-		TaskUpdateUpperLed(updateLedTab, TabGen); // bug +
+		if (HAL_GetTick()% 1000 == 1)
+		{
 
-		TaskLedBlinking(upperLedTab, TabGen);
+		}
 
-		TaskOnScreen(TabGen, &Timer_screen);
+		if (HAL_GetTick()% 100 == 0)
+		{
+			TaskOnScreen(TabGen, &Timer_screen);
 
-		TaskBigScreen(ScreenTab, TabAlert, TabGen, TabFloatValue, TabTimer,
-				TabAlertAll, WifiName);
+			TaskBigScreen(ScreenTab, TabAlert, TabGen, TabFloatValue, TabTimer, TabAlertAll, WifiName);
 
-		if (TabGen[CHARGEC] == 0)
-			TaskAlertAll(TabAlert, TabGen, TabAlertAll, TabFloatValue);
+			TaskUpdateUpperLed(updateLedTab, TabGen);
+
+			TaskLedBlinking(upperLedTab, TabGen);
+
+
+
+			if (TabGen[CHARGEC] == 0)
+				TaskAlertAll(TabAlert, TabGen, TabAlertAll, TabFloatValue);
+		}
 
 		Battery_Charger_Management();
 
-//		if(Time_Now % 1000 == 0)
-//		{
-//			Flag[F_CHARGER] = 1;
-//			Battery_Charger_Management();
-//		}
 
 		// EVERY 100 HZ
 		if (Flag[F_100HZ] == 1)
@@ -955,89 +1030,90 @@ int main(void)
 		}
 	}
 	//}
-	/* USER CODE END WHILE */
-	/* USER CODE BEGIN 3 */
+    /* USER CODE END WHILE */
 
-	/* USER CODE END 3 */
+    /* USER CODE BEGIN 3 */
+
+  /* USER CODE END 3 */
 }
 
-/* ----------------------------------WHILE END---------------------------------------------*/
-
 /**
- * @brief System Clock Configuration
- * @retval None
- */
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
-	RCC_OscInitTypeDef RCC_OscInitStruct =
-	{ 0 };
-	RCC_ClkInitTypeDef RCC_ClkInitStruct =
-	{ 0 };
-	RCC_PeriphCLKInitTypeDef PeriphClkInit =
-	{ 0 };
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
-	/** Configure LSE Drive Capability
-	 */
-	HAL_PWR_EnableBkUpAccess();
-	__HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
-	/** Initializes the RCC Oscillators according to the specified parameters
-	 * in the RCC_OscInitTypeDef structure.
-	 */
-	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48
-			| RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE
-			| RCC_OSCILLATORTYPE_MSI;
-	RCC_OscInitStruct.LSEState = RCC_LSE_ON;
-	RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
-	RCC_OscInitStruct.LSIState = RCC_LSI_ON;
-	RCC_OscInitStruct.MSIState = RCC_MSI_ON;
-	RCC_OscInitStruct.MSICalibrationValue = 0;
-	RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
-	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-	RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_MSI;
-	RCC_OscInitStruct.PLL.PLLM = 1;
-	RCC_OscInitStruct.PLL.PLLN = 16;
-	RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
-	RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
-	RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
-	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-	{
-		Error_Handler();
-	}
-	/** Initializes the CPU, AHB and APB buses clocks
-	 */
-	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
-			| RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-	RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV2;
-	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  /** Configure LSE Drive Capability
+  */
+  HAL_PWR_EnableBkUpAccess();
+  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48|RCC_OSCILLATORTYPE_HSI
+                              |RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_LSE
+                              |RCC_OSCILLATORTYPE_MSI;
+  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
+  RCC_OscInitStruct.MSIState = RCC_MSI_ON;
+  RCC_OscInitStruct.MSICalibrationValue = 0;
+  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Initializes the CPU, AHB and APB buses clocks
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV16;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV8;
 
-	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
-	{
-		Error_Handler();
-	}
-	PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1
-			| RCC_PERIPHCLK_USART2 | RCC_PERIPHCLK_USART3 | RCC_PERIPHCLK_I2C1
-			| RCC_PERIPHCLK_I2C2 | RCC_PERIPHCLK_USB;
-	PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
-	PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
-	PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
-	PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
-	PeriphClkInit.I2c2ClockSelection = RCC_I2C2CLKSOURCE_PCLK1;
-	PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
-	if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-	{
-		Error_Handler();
-	}
-	/** Configure the main internal regulator output voltage
-	 */
-	if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK)
-	{
-		Error_Handler();
-	}
-	/** Enable MSI Auto calibration
-	 */
-	HAL_RCCEx_EnableMSIPLLMode();
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_USART2
+                              |RCC_PERIPHCLK_USART3|RCC_PERIPHCLK_I2C1
+                              |RCC_PERIPHCLK_I2C2|RCC_PERIPHCLK_USB
+                              |RCC_PERIPHCLK_ADC;
+  PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
+  PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
+  PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
+  PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
+  PeriphClkInit.I2c2ClockSelection = RCC_I2C2CLKSOURCE_PCLK1;
+  PeriphClkInit.AdcClockSelection = RCC_ADCCLKSOURCE_PLLSAI1;
+  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
+  PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_MSI;
+  PeriphClkInit.PLLSAI1.PLLSAI1M = 1;
+  PeriphClkInit.PLLSAI1.PLLSAI1N = 16;
+  PeriphClkInit.PLLSAI1.PLLSAI1P = RCC_PLLP_DIV7;
+  PeriphClkInit.PLLSAI1.PLLSAI1Q = RCC_PLLQ_DIV8;
+  PeriphClkInit.PLLSAI1.PLLSAI1R = RCC_PLLR_DIV8;
+  PeriphClkInit.PLLSAI1.PLLSAI1ClockOut = RCC_PLLSAI1_ADC1CLK;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure the main internal regulator output voltage
+  */
+  if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Enable MSI Auto calibration
+  */
+  HAL_RCCEx_EnableMSIPLLMode();
 }
 
 /* USER CODE BEGIN 4 */
@@ -1162,15 +1238,15 @@ void jumpToBootloader(void)
 /* USER CODE END 4 */
 
 /**
- * @brief  This function is executed in case of error occurrence.
- * @retval None
- */
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
 void Error_Handler(void)
 {
-	/* USER CODE BEGIN Error_Handler_Debug */
+  /* USER CODE BEGIN Error_Handler_Debug */
 	/* User can add his own implementation to report the HAL error return state */
 
-	/* USER CODE END Error_Handler_Debug */
+  /* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef  USE_FULL_ASSERT

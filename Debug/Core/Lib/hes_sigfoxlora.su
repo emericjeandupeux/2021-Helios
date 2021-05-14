@@ -6,11 +6,11 @@ hes_sigfoxlora.c:59:6:LoraWanOn	4	static
 hes_sigfoxlora.c:72:6:LoraWanAskKey	16	static
 hes_sigfoxlora.c:81:6:SendOnLora	4	static
 hes_sigfoxlora.c:91:6:SendMessLoraWan	56	static
-hes_sigfoxlora.c:108:6:SendIdAskSF	136	static
-hes_sigfoxlora.c:117:6:SigfoxOn	136	static
-hes_sigfoxlora.c:129:6:SendMessSigfox	200	static
-hes_sigfoxlora.c:145:6:SendOnMessSigfox	144	static
-hes_sigfoxlora.c:158:6:SendOffMessSigfox	136	static
+hes_sigfoxlora.c:108:6:SendIdAskSF	4	static
+hes_sigfoxlora.c:117:6:SigfoxOn	4	static
+hes_sigfoxlora.c:129:6:SendMessSigfox	72	static
+hes_sigfoxlora.c:145:6:SendOnMessSigfox	16	static
+hes_sigfoxlora.c:158:6:SendOffMessSigfox	4	static
 hes_sigfoxlora.c:174:6:SendTestLora811	144	static
 hes_sigfoxlora.c:184:6:EnableLora811	136	static
 hes_sigfoxlora.c:208:6:EnableLoraSend811	136	static

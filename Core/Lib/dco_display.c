@@ -60,6 +60,13 @@ void display_InitBis()
 }
 
 extern uint8_t IMU_nodata;
+extern uint32_t gaz1_level_mean;
+extern uint32_t gaz2_level_mean;
+extern uint32_t gaz1_ppm;
+extern uint32_t gaz2_ppm;
+extern uint32_t TabTimer[];
+extern uint8_t BiGaz_ON;
+extern uint8_t GAZ_THRESHOLD_ALERT;
 
 /*
 * Fonction permettant d'afficher les taux des differents gaz et niveau sonore
@@ -140,11 +147,6 @@ void display_dco(float TabFloatValue[],int TabAlert[],int TabGen[], uint32_t Tab
 			if(IMU_nodata == 100)
 			{
 				u8g2_DrawStr(&u8g2, 45, 8, "!IMU!");
-			}
-			else
-			{
-				sprintf(str_display, "%d mA", TabGen[AVG_CURRENT]);
-				//u8g2_DrawStr(&u8g2, 45, 8, str_display);
 			}
 
 
@@ -719,7 +721,9 @@ void display_SendMess(void) {
 void display_AlerteGaz(uint8_t gaz, int type_warning) {
 }
 
-extern uint32_t TabTimer[];
+
+
+extern uint8_t Calibration_Time_Over;
 
 /*
 * Permet d'afficher une alerte
@@ -727,16 +731,17 @@ extern uint32_t TabTimer[];
 void display_Alerte(int TabGen[], uint8_t type_alerte) 
 {
 	u8g2_SetFont(&u8g2, u8g2_font_t0_11_tr);
+	char str_display[25];
+
 
 	if (GPSOK == 1)
 	{
-
 		if(show_RSSI == 1)
 		{
 			if (LORAWANOK == 1 && SIGFOXOK == 1)
 			{
 				u8g2_SetFont(&u8g2, u8g2_font_t0_11_tr);
-				char str_display[25];
+
 				if(TabGen[SIGFOX_RSSI] != 0)
 				{
 					sprintf(str_display, "SIGFOX OK (%ddB)", TabGen[SIGFOX_RSSI]);
@@ -791,6 +796,39 @@ void display_Alerte(int TabGen[], uint8_t type_alerte)
 			{
 				u8g2_DrawStr(&u8g2, 2, 30, "Batterie tres faible");
 			}
+			else if (BiGaz_ON == 1)
+			{
+
+				if (GAZ_THRESHOLD_ALERT == 1)
+					sprintf(str_display, "CO  : %4u ppm - GAZ!", gaz1_ppm);
+				else
+		#ifdef debug_sound_vibration
+					sprintf(str_display, "CO  : %4u ppm %4u", gaz1_ppm, gaz1_level_mean);
+		#endif
+		#ifndef debug_sound_vibration
+				if(Calibration_Time_Over == 0)
+					sprintf(str_display, "CO  : calibration", gaz1_ppm);
+				else
+					sprintf(str_display, "CO  : %4u ppm", gaz1_ppm);
+		#endif
+
+				u8g2_DrawStr(&u8g2, 0, 20, str_display);
+
+				if (GAZ_THRESHOLD_ALERT == 2)
+					sprintf(str_display, "H2S : %4u ppm - GAZ!", gaz2_ppm);
+				else
+		#ifdef debug_sound_vibration
+					sprintf(str_display, "H2S : %4u ppm %4u", gaz2_ppm, gaz2_level_mean);
+		#endif
+		#ifndef debug_sound_vibration
+				if(Calibration_Time_Over == 0)
+					sprintf(str_display, "H2S : calibration", gaz2_ppm);
+				else
+					sprintf(str_display, "H2S : %4u ppm", gaz2_ppm);
+		#endif
+				u8g2_DrawStr(&u8g2, 0, 30, str_display);
+
+			}
 			else
 			{
 				if (TabGen[STATUT_GPS] == 1)
@@ -806,18 +844,18 @@ void display_Alerte(int TabGen[], uint8_t type_alerte)
 			}
 		}
 	}
-	else if (SUEZ == 1)
-	{	
-		char buff[30] = "";
-
-		sprintf(buff, "Distance: %5d cm", TabGen[DECA1004_DIST]);
-		
-		//u8g2_SetFont(&u8g2, u8g2_font_t0_11_tr);	
-		u8g2_DrawStr(&u8g2, 2, 32, buff); 
-		//u8g2_NextPage(&u8g2);		
-
-		//u8g2_DrawStr(&u8g2, 2, 30, "Distance: ");
-	}
+//	else if (SUEZ == 1)
+//	{
+//		char buff[30] = "";
+//
+//		sprintf(buff, "Distance: %5d cm", TabGen[DECA1004_DIST]);
+//
+//		//u8g2_SetFont(&u8g2, u8g2_font_t0_11_tr);
+//		u8g2_DrawStr(&u8g2, 2, 32, buff);
+//		//u8g2_NextPage(&u8g2);
+//
+//		//u8g2_DrawStr(&u8g2, 2, 30, "Distance: ");
+//	}
 	else if(TabGen[STATUS_REP] == 0 && LORAP2POK == 1)
 	{
 		u8g2_DrawStr(&u8g2, 2, 30, "Pas de repeteur");

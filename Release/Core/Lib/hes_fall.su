@@ -1,2 +1,2 @@
-hes_fall.c:5:10:mean	12	static
-hes_fall.c:18:9:test_chute	24	static
+hes_fall.c:5:10:mean	24	static
+hes_fall.c:18:9:test_chute	32	static

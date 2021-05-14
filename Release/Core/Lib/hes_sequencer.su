@@ -1,2 +1,2 @@
-hes_sequencer.c:3:6:InitTaskState	0	static
-hes_sequencer.c:12:5:TaskState	16	static
+hes_sequencer.c:3:6:InitTaskState	16	static
+hes_sequencer.c:12:5:TaskState	24	static

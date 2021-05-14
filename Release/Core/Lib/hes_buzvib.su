@@ -1,3 +1,3 @@
-hes_buzvib.c:3:6:PowerBuzVib	8	static
+hes_buzvib.c:3:6:PowerBuzVib	16	static
 hes_buzvib.c:12:6:PowerBuz	16	static
-hes_buzvib.c:19:6:PowerVib	8	static
+hes_buzvib.c:19:6:PowerVib	16	static

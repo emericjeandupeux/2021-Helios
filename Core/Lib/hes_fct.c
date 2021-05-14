@@ -179,6 +179,7 @@ void TaskAlertAcc(uint8_t accy, uint16_t accres, int TabAlert[], int TabGen[])
 			&& (TabAlert[ALERT_MALAISE] == 0) && (TabAlert[ALERT_FALL] == 0))
 	{
 		TabGen[NS_FALL]++;
+
 		if (TabGen[NS_FALL] >= TabGen[NMAXS_FALL])
 		{
 			TabGen[FALL_UP_DELAY] = 1;
